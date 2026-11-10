@@ -18,3 +18,9 @@ defineScreens({
 
 startTheme();
 startRouter(document.querySelector("#app"), "welcome");
+
+// Offline + installable. Only in the built app: during "npm run dev" a service worker
+// would keep serving old copies of the files you're editing.
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
+}

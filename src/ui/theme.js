@@ -16,6 +16,8 @@ function savedTheme() {
 
 function apply(theme) {
   document.documentElement.dataset.theme = theme;
+  // The phone's status bar (and the installed app's title bar) matches the background
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#0B1824" : "#EAF4FB");
 }
 
 export function getTheme() {
