@@ -24,3 +24,5 @@ startRouter(document.querySelector("#app"), "welcome");
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
 }
+
+document.addEventListener("gesturestart", (event) => event.preventDefault());

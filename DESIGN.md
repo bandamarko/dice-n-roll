@@ -1,26 +1,34 @@
 # Dice'n'Roll: design notes
 
 Score tracker for physically thrown dice. Pass-and-play on one device.
-Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when deployed).
+Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/.
+Features still to build are in TODO.md.
 
 ## Platform
 
 - PWA built with Vite, plain HTML/CSS/JS, hosted free on GitHub Pages; also runs on localhost.
 - Works in the browser on Android and iOS; installable (also on desktop via Chrome/Edge).
 - Single-page app: one index.html, JS swaps screens inside <div id="app">.
-- Deploy: GitHub Actions builds with Vite (base "/dice-n-roll/" in vite.config.js)
-  and publishes dist/ to GitHub Pages on every push to main.
+- Deploy: .github/workflows/deploy.yml runs on every push to main: npm ci,
+  npm run build (base "/dice-n-roll/" in vite.config.js), publishes dist/.
+  Settings → Pages → Source must be "GitHub Actions" (with "Deploy from a branch",
+  GitHub publishes the raw repo too, and the site asks for /src/main.js and breaks).
 
-## Structure (src/)
+## Structure
 
-- main.js: wires screens to the router, starts theme and router
-- assets/: every SVG (logo, icons, Yamb column/row/dice icons), imported with ?raw
-- games/: pure game rules, no DOM (index.js registry, zonk.js, yamb.js)
-- state/: game.js (createGame, playMove, getWinners), history.js (undo/redo)
-- storage/: storage.js (save/load JSON in localStorage)
-- ui/: router.js, theme.js, themeSwitch.js, dom.js, icons.js, dialog.js,
+- index.html: theme script, manifest, icons, theme-color meta
+- public/: copied as-is into the built site
+  - manifest.webmanifest, sw.js (service worker), favicon.svg
+  - icons/: icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png
+- src/main.js: wires screens to the router, starts theme and router, registers the
+  service worker (built app only)
+- src/assets/: every SVG (logo, icons, Yamb column/row/dice icons), imported with ?raw
+- src/games/: pure game rules, no DOM (index.js registry, zonk.js, yamb.js)
+- src/state/: game.js (createGame, playMove, getWinners), history.js (undo/redo)
+- src/storage/: storage.js (save/load JSON in localStorage)
+- src/ui/: router.js, theme.js, themeSwitch.js, dom.js, icons.js, dialog.js,
   welcome.js, picker.js, setup.js, starterSpinner.js, game.js, gameMenu.js, end.js,
-  sheets/zonk.js, sheets/yamb.js
+  confetti.js, sheets/zonk.js, sheets/yamb.js
 - Layers: games/ and state/ never touch the DOM; ui/ uses everything.
 
 ## Game state
@@ -52,6 +60,10 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 - "+" when all dice have scored; Bank adds the turn to the total; Zonk ends the turn with 0.
 - Reaching the target ends the game immediately.
 - No confirm step: Bank and Zonk are already deliberate.
+- Scoring table (for the rules pages, the app doesn't check it):
+  each 1 = 100, each 5 = 50; three 1s = 1,000, three 2s–6s = 200–600;
+  four / five / six of a kind = three of a kind ×2 / ×4 / ×8;
+  straight 1–6 = 1,500; three pairs = 750.
 
 ## Yamb
 
@@ -65,7 +77,7 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 - Sum 1 = ones–sixes, +30 if 60 or more.
 - Max / Min = sum of the best 5 dice (5–30).
 - Difference = (Max − Min) × Ones, never below 0, same column.
-- Straight = 1–5 or 2–6; the player picks 46, 56 or 66.
+- Straight = 1–5 or 2–6; the player picks 66 (made on throw 1), 56 (throw 2) or 46 (throw 3).
 - Triple = 3 × face + 20. Full house = sum + 30 (two different numbers; five of a
   kind is not a Full). Poker = 4 × face + 40. Yamb = 5 × face + 50.
 - Final = all Sum 1 + all Difference + all Sum 2.
@@ -79,7 +91,8 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
   pendingTip to that row for the next player.
 - Hand: all dice in one throw.
 - Tip: only filled from the previous player's announce. With a tip waiting, that
-  Tip cell is the only legal move; without one, Tip is closed.
+  Tip cell is the only legal move; without one, Tip is closed. Each row can be
+  announced only once, so the announced Tip cell is always still empty.
 - From middle: from Max upward and from Min downward.
 - Mandatory: opens when every other column is full, Tip included; top to bottom.
 - Maximum: only the best value for the row, or "/".
@@ -90,8 +103,9 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 
 ### Turns
 
-- A player with no legal move is skipped with a popup (in practice only the
-  starting player, at most once per game, waiting for a tip).
+- A player with no legal move is skipped with a popup. That happens when only
+  Tip cells are left and nobody announced for them; the turn passes until someone does.
+  Applies to Yamb and Flash Yamb.
 
 ## Flash Yamb
 
@@ -106,12 +120,28 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 
 ## Storage
 
-- localStorage key "dice-n-fun:current-game", SAVE_VERSION 2 (keys kept from the
+- localStorage key "dice-n-fun:current-game", SAVE_VERSION 1 (keys kept from the
   old name so existing saves survive).
 - Saves { version, current, undoStack } after every move; redo isn't saved.
 - Missing, broken or old-version save → start fresh.
-- When a finished game's end screen is left, its save is cleared.
+- A finished game stays saved while its end screen is open (a refresh still shows
+  the results); Done, Play again or back clears it.
 - Theme stored under "dice-n-fun:theme".
+- The service worker's copy of the app is separate: updating the app never touches saves.
+
+## Offline and updates (public/sw.js)
+
+- On install, saves index.html, every assets/ file it points to, the manifest,
+  favicon and two icons. One missing file makes the install fail (and it retries
+  on the next visit).
+- Opening the app answers from the saved copy, then downloads the newest version
+  in the background: a push shows up on the open after next.
+- Vite renames a file when its content changes, so saved assets never go stale.
+  Files are saved before the page; files older than the previous version are deleted.
+- Google Fonts are saved too, after the first load.
+- Only registered in the built app (import.meta.env.PROD), never during npm run dev.
+- Manifest: "Dice'n'Roll", standalone, portrait, background and theme #EAF4FB,
+  icons 192 / 512 / maskable 512 (the die inside the middle 80%).
 
 ## UI
 
@@ -131,8 +161,26 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 - Game menu (tap the logo on a scoresheet): Rules, Theme | New game (asks to
   confirm, ends the saved game), Quit to welcome (game stays saved).
 - Popups use one shared dialog; back closes it.
-- End screen (temporary): winner(s) and ranked totals; Done clears the save.
-  Planned: "Compare sheets" to view each player's finished sheet read-only.
+- The phone's status bar follows the theme (theme-color meta, set by the inline
+  script and by theme.js).
+
+### End screen
+
+- "<Game> · game over", then the trophy card: trophy, "<Name> wins!", the winning
+  score, "points · N ahead of <runner-up>".
+  - Tie: "It's a tie!", "points each · Ana & Marko share the win".
+  - One player (Zonk): "Well done, <Name>!".
+- Ranking: rank circle (gold / silver / bronze, then plain), name, "−N" behind the
+  winner, total, and a bar (score ÷ winner's score). Tied players share a rank
+  (1, 1, 3); every winner gets the gold circle, bold name and the accent bar.
+- Play again: clears the save, opens setup with the same players (same order)
+  and the same options (e.g. Zonk target); back from there goes to welcome.
+- Done (and back): clears the save, goes to welcome.
+- Victory effect, only when the last move just ended the game (not on Continue):
+  the trophy pops in, then confetti bursts from behind it (blues + gold from the
+  theme), floats down for ~5 s and fades. Canvas, taps go through. Skipped when
+  the phone asks for reduced motion.
+- Designed on the canvas (option B, trophy card), with light, dark and tie boards.
 
 ### Zonk sheet
 
@@ -165,6 +213,7 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 
 - Closes an open overlay first (score panel, game menu, popup, peek, spinner).
 - On a scoresheet with nothing open: "Leave the game? It stays saved." [Keep playing] [Leave].
+- On the end screen: same as Done.
 - Setup → picker → welcome; back on welcome closes the app.
 - The router keeps its own screen stack and only adds history entries during a tap
   (browsers skip ones added without user interaction); it never removes them.
@@ -182,6 +231,7 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 - Light: bg #EAF4FB, text #0E2A3D, muted #4A6578, card #FFFFFF, accent #1F6FC2.
 - Dark: bg #0B1824, text #E6F1FA, muted #9DB6CA, card #14273A, accent #4A9EEB.
 - Danger (Zonk button, destructive actions): #C0392B (dark #E0604F).
+- End screen: gold #FFC24B, silver #C9D3DD, bronze #E3A869; bar #5B9BD9 (dark #6FAEE8).
 - SVG assets carry their light colors as attributes on the element that has the
   class, so CSS can override them per theme.
 
@@ -189,17 +239,5 @@ Repo: bandamarko/dice-n-roll. Live at bandamarko.github.io/dice-n-roll/ (when de
 
 - Name: Dice'n'Roll. Icon: 3D rounded die (faces 1, 2, 3 visible) on a blue tile.
 - Logo: sticker version with a dice trail and a yellow sparkle.
-- The app icon doubles as the game-menu button on scoresheets.
-
-## Later
-
-- Real end screen with "Compare sheets".
-- PWA setup: manifest, service worker, install icons (PNG in public/).
-- Desktop layout: sheet labels shown, side input panel, all sheets visible,
-  keyboard (numbers, Enter, Esc, Ctrl+Z), hover states inside @media (hover: hover).
-  Code keeps layout in CSS only.
-- Zonk options: sudden death (others get a last turn), exact target with bust;
-  a tie is decided with one more turn.
-- Prefill setup with the last game's players.
-- Game history: keep finished games to look back at results and sheets.
-- Online / multi-device play.
+- The app icon doubles as the game-menu button on scoresheets, the favicon and
+  the home-screen icon.

@@ -8,7 +8,8 @@ import { showDialog } from "./dialog.js";
 import { el, button } from "./dom.js";
 import { toggleTheme, getTheme } from "./theme.js";
 import { themeSwitchPicture } from "./themeSwitch.js";
-import { BOOK, HALFMOON, PLUS, EXIT, CHEVRON, BACK, BOLT } from "./icons.js";
+import { BOOK, HALFMOON, PLUS, EXIT, CHEVRON, BACK } from "./icons.js";
+import { rulesPager } from "./rules.js";
 
 function menuItem({ icon, title, subtitle, end, onClick, role = "menuitem" }) {
   const item = button("menu-item", { onClick });
@@ -88,19 +89,11 @@ export function openGameMenu(root, game) {
 
     const players = `${game.minPlayers}–${game.maxPlayers} players · ${game.dice} dice`;
     const facts = el("p", "menu-rules-facts", game.rules.extra ? `${players} · ${game.rules.extra}` : players);
-    const list = el("ul", "menu-rules-list");
-    for (const rule of game.rules.bullets) list.append(el("li", "", rule));
-    panel.replaceChildren(head, facts, list);
-
-    if (game.rules.tip) {
-      const tip = el("p", "menu-rules-tip");
-      tip.innerHTML = BOLT;
-      tip.append(game.rules.tip);
-      panel.append(tip);
-    }
+    // Done on the last page closes the whole menu, back to the scoresheet
+    panel.replaceChildren(head, facts, rulesPager(game, { onDone: dismiss }));
     backButton.focus();
   }
-
+  
   showMain();
   root.append(layer);
 }
