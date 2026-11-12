@@ -96,6 +96,20 @@ export function showGame(root, params = {}) {
     );
     draw();
 
+    // Keyboard: Ctrl+Z undo, Ctrl+Y or Ctrl+Shift+Z redo (Cmd on a Mac).
+    // It presses the real buttons, so the same rules apply: disabled means nothing happens.
+    function onKey(event) {
+        if (!screen.isConnected) return window.removeEventListener("keydown", onKey); // the game screen was left
+        if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+        if (root.querySelector(".menu-layer, .dialog-layer, .yamb-layer")) return; // not behind a menu, popup or score panel
+        const key = event.key.toLowerCase();
+        const target = key === "z" && !event.shiftKey ? undoButton : key === "y" || key === "z" ? redoButton : null;
+        if (!target) return;
+        event.preventDefault(); // stops the browser's own undo
+        if (!target.disabled) target.click();
+    }
+    window.addEventListener("keydown", onKey);
+
     // A brand-new game (from setup) first reveals who starts. Continue skips this.
     const { players, currentPlayer } = history.current;
     if (params.intro && players.length > 1) {

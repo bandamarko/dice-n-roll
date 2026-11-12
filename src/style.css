@@ -43,6 +43,7 @@
 
 html {
   touch-action: pan-x pan-y;
+  overscroll-behavior: none; /* no bounce, stretch or pull-to-refresh at the edges */
 }
 
 *,
@@ -51,11 +52,18 @@ html {
   box-sizing: border-box;
 }
 
+/* Keyboard focus: a clear ring, only when using the keyboard (taps and clicks don't show it) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: Inter, system-ui, sans-serif;
+  overscroll-behavior: none; /* some browsers scroll the body instead of html */
 }
 
 h1,
@@ -2102,6 +2110,16 @@ h3 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
 
+/* Above or below the tapped cell; placeNear() in yamb.js sets the distances */
+.yamb-panel.is-below { top: var(--panel-top); }
+.yamb-panel.is-above { bottom: var(--panel-bottom); }
+
+/* The line saying what the row scores: only on desktop, where there's room */
+.yamb-panel-rule { display: none; }
+
+/* The mini sheets: only on desktop (phones have the chips) */
+.yamb-rail { display: none; }
+
 /* the arrow pointing at the cell; --arrow-x is set from JS to the cell's center */
 .yamb-panel::before {
   content: "";
@@ -2543,5 +2561,282 @@ h3 {
   .theme-switch::before,
   .switch-knob {
     transition: none;
+  }
+}
+
+/* ---------- Desktop ----------
+   Wide windows (laptops, monitors, tablets turned sideways). Screens join the wide
+   layout one by one as they get their desktop design; the rest keep the phone column.
+   Designed on the canvas, boards 14–19. */
+
+@media (min-width: 1024px) and (min-height: 600px) {
+  #app:has(.yamb-grid) {
+    max-width: 1440px;
+  }
+
+  /* The game menu sits under the logo, which is now at the wide app's left edge */
+  #app:has(.yamb-grid) .menu-panel {
+    left: max(24px, calc(50% - 720px + 24px));
+  }
+  #app:has(.yamb-grid) .menu-panel-rules {
+    right: auto;
+    width: 420px;
+  }
+
+  /* ----- Yamb sheet: mini sheets | the sheet | score panel ----- */
+
+  .game-screen:has(.yamb-grid) {
+    height: 100dvh;
+    padding: 12px 24px 24px;
+  }
+  .game-screen:has(.yamb-grid) .game-header {
+    gap: 14px;
+  }
+  .game-screen:has(.yamb-grid) .game-title {
+    flex: none;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .game-screen:has(.yamb-grid) .game-tools {
+    margin-left: auto;
+  }
+
+  .game-body:has(.yamb-grid) {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr) 330px;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 24px;
+    row-gap: 10px;
+  }
+
+  .yamb-chips {
+    display: none;
+  }
+
+  /* Mini sheets, in turn order; four fit, the rest scroll */
+  .yamb-rail {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .yamb-rail-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .yamb-rail-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: grid;
+    grid-auto-rows: calc((100% - 30px) / 4);
+    gap: 10px;
+    padding-right: 8px;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--highlight) transparent;
+  }
+  .yamb-rail-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .yamb-rail-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .yamb-rail-list::-webkit-scrollbar-thumb {
+    background: var(--highlight);
+    border-radius: 999px;
+  }
+  .yamb-rail-list::-webkit-scrollbar-thumb:hover {
+    background: var(--panel-border);
+  }
+
+  .yamb-mini {
+    min-height: 0;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .yamb-mini.is-current {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  .yamb-mini[aria-pressed="true"]:not(.is-current) {
+    background: var(--highlight);
+  }
+  .yamb-mini-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .yamb-mini-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .yamb-mini.is-current .yamb-mini-name {
+    font-weight: 700;
+  }
+  .yamb-mini-tag {
+    flex: none;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .yamb-mini-tag.is-playing {
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+  .yamb-mini-total {
+    margin-left: auto;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .yamb-mini-map {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .yamb-mini-cell {
+    border-radius: 2px;
+    background: var(--locked);
+  }
+  .yamb-mini-cell.is-filled {
+    background: var(--accent-text);
+  }
+  .yamb-mini-cell.is-crossed {
+    background: var(--muted);
+    opacity: 0.45;
+  }
+
+  /* The sheet, with row and column names shown */
+  .yamb-peek-bar {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .yamb-grid {
+    --row: clamp(26px, calc((100dvh - 190px) / 16), 40px);
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    grid-template-columns: 132px repeat(var(--columns), minmax(0, 1fr));
+    grid-template-rows: 52px;
+    gap: 3px;
+  }
+  .game-body:has(.yamb-peek-bar) .yamb-grid {
+    --row: clamp(24px, calc((100dvh - 236px) / 16), 40px); /* room for the peek bar above */
+  }
+  .yamb-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: hidden;
+    clip-path: none;
+    text-overflow: ellipsis;
+  }
+  .yamb-col-head {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .yamb-col-head .yamb-label {
+    max-width: 100%;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .yamb-row-head {
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 0 10px;
+  }
+  .yamb-row-head .yamb-label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .yamb-row-head.is-sum .yamb-label {
+    font-weight: 700;
+  }
+  .yamb-symbol {
+    width: 20px;
+    text-align: center;
+  }
+  .yamb-cell {
+    font-size: 15px;
+  }
+
+  /* The right column: a card with the total and Confirm turn at the bottom… */
+  .yamb-bar {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    margin-top: 0;
+    padding: 18px;
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    flex-direction: column-reverse; /* first child (Confirm / hint) at the very bottom */
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .yamb-bar-total {
+    padding-top: 14px;
+    border-top: 1px solid var(--locked);
+  }
+  .yamb-bar-hint {
+    text-align: center;
+  }
+  .yamb-confirm {
+    height: 52px;
+  }
+
+  /* …and the score panel filling its top part. No dimming: the sheet stays clickable,
+     and clicking another open cell switches the panel to it. */
+  .game-screen:has(.yamb-grid) .yamb-layer:not(.is-dimmed) {
+    pointer-events: none;
+  }
+  .game-screen:has(.yamb-grid) .yamb-layer:not(.is-dimmed) .yamb-panel {
+    pointer-events: auto;
+    top: 68px; /* screen padding + header + gap: the top of the right column */
+    bottom: auto;
+    left: auto;
+    right: 24px;
+    width: 330px;
+    max-height: calc(100% - 68px - 24px - 150px); /* leaves Total and Confirm visible */
+    overflow-y: auto;
+    padding: 18px;
+    border-radius: 20px 20px 0 0;
+    border-bottom-color: var(--locked);
+    box-shadow: none;
+  }
+  .game-screen:has(.yamb-grid) .yamb-layer:not(.is-dimmed) .yamb-panel::before {
+    display: none; /* no arrow: the panel isn't next to the cell */
+  }
+  .yamb-panel-rule {
+    display: block;
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--bg);
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--body);
   }
 }

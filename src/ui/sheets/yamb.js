@@ -22,6 +22,15 @@ const ROW_NAMES = {
 const SUM_NAMES = { sum1: "Sum 1", difference: "Difference", sum2: "Sum 2" };
 const SUM_SYMBOLS = { sum1: "Σ", difference: "Δ", sum2: "Σ" };
 const PLURAL = ["", "ones", "twos", "threes", "fours", "fives", "sixes"];
+const ROW_RULES = {
+    max: "Sum of all 5 dice, aim high (5–30).",
+    min: "Sum of all 5 dice, aim low (5–30).",
+    straight: "1–5 or 2–6: 66 on throw 1, 56 on throw 2, 46 on throw 3.",
+    triple: "Three alike, sum + 20.",
+    full: "Three alike + a pair, sum + 30. Five alike is not a Full.",
+    poker: "Four alike, sum + 40.",
+    yamb: "Five alike, sum + 50.",
+};
 const FACES = [1, 2, 3, 4, 5, 6];
 
 // Rows top to bottom as drawn: the 13 scoring rows with the 3 sum rows in between
@@ -39,6 +48,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     let viewed = currentPlayer;   // whose sheet is on screen
     let closePeek = null;         // set while peeking; closes the peek like the back button
     let pending = null;           // { column, row, value } entered but not confirmed yet
+    let closeInput = null;        // set while the score panel is open
 
     function clearPending() {
         pending = null;
@@ -54,7 +64,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
 
     function draw() {
         const mine = viewed === currentPlayer;
-        const parts = [chips()];
+        const parts = [chips(), rail()]; // chips on phones, the mini sheets on desktop (CSS picks)
         if (!mine) parts.push(peekBar());
         parts.push(grid(mine), bottomBar(mine));
         container.replaceChildren(...parts);
@@ -80,7 +90,51 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         });
         return row;
     }
+    // ---------- Mini sheets (desktop) ----------
+    // Turn order starting one player back, so the player whose turn it is is always 2nd
+    function rail() {
+        const box = el("aside", "yamb-rail");
+        box.append(el("span", "yamb-rail-title", "Turn order · click to view"));
+        const list = el("div", "yamb-rail-list");
+        const tags = ["Last", "Playing", "Next"];
+        for (let step = 0; step < players.length; step++) {
+            const i = (currentPlayer - 1 + step + players.length) % players.length;
+            list.append(miniSheet(i, players.length > 2 || step > 0 ? tags[step] : null));
+        }
+        box.append(list);
+        return box;
+    }
 
+    function miniSheet(i, tag) {
+        const card = button("yamb-mini", {
+            onClick: () => {
+                if (i === viewed) return;
+                if (i === currentPlayer) return closePeek?.();
+                peek(i);
+            },
+        });
+        if (i === currentPlayer) card.classList.add("is-current");
+        if (i === viewed) card.setAttribute("aria-pressed", "true");
+        card.setAttribute("aria-label", `${players[i]}, ${totals[i]} points${i === currentPlayer ? ", playing now" : ", click to see their sheet"}`);
+
+        const top = el("span", "yamb-mini-top");
+        top.append(el("span", "yamb-mini-name", players[i]));
+        if (tag) top.append(el("span", tag === "Playing" ? "yamb-mini-tag is-playing" : "yamb-mini-tag", tag));
+        top.append(el("span", "yamb-mini-total", String(totals[i])));
+
+        // A tiny map of the sheet: one square per cell, row by row
+        const map = el("span", "yamb-mini-map");
+        map.style.setProperty("--columns", game.columns.length);
+        const cells = sheet.grids[i];
+        for (let r = 0; r < ROWS.length; r++) {
+            for (const column of game.columns) {
+                const v = cells[column][r];
+                map.append(el("span", v === null ? "yamb-mini-cell" : v === 0 ? "yamb-mini-cell is-crossed" : "yamb-mini-cell is-filled"));
+            }
+        }
+        card.append(top, map);
+        return card;
+    }
     // Peeking is an overlay as far as the router knows, so the back button ends it
     function peek(i) {
         if (!closePeek) {
@@ -192,7 +246,8 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             again.append(`Tip from ${announcer()}: ${ROW_NAMES[tip]}`);
             bar.append(again);
         } else {
-            bar.append(el("span", "yamb-bar-hint", mine ? "Tap an outlined cell to score" : "Read-only"));
+            const verb = matchMedia("(hover: hover)").matches ? "Click" : "Tap"; // mouse or finger
+            bar.append(el("span", "yamb-bar-hint", mine ? `${verb} an outlined cell to score` : "Read-only"));
         }
         const total = el("span", "yamb-bar-total");
         const shownTotal = mine && pending ? game.computeTotals(previewSheet())[viewed] : totals[viewed];
@@ -215,8 +270,9 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         const below = target.top + target.height / 2 < area.top + area.height * 0.5;
         panel.classList.toggle("is-below", below);
         panel.classList.toggle("is-above", !below);
-        if (below) panel.style.top = `${target.bottom - area.top + 10}px`;
-        else panel.style.bottom = `${area.bottom - target.top + 10}px`;
+        // Variables, not top/bottom: the desktop CSS ignores them and uses the side column
+        panel.style.setProperty("--panel-top", `${target.bottom - area.top + 10}px`);
+        panel.style.setProperty("--panel-bottom", `${area.bottom - target.top + 10}px`);
         const arrowX = target.left + target.width / 2 - area.left - panel.offsetLeft - 7;
         panel.style.setProperty("--arrow-x", `${Math.round(arrowX)}px`);
     }
@@ -228,6 +284,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     }
 
     function openInput(cell, column, key) {
+        closeInput?.(); // on desktop another cell can be clicked while a panel is open
         const layer = el("div", "yamb-layer");
         const panel = el("div", "yamb-panel");
         panel.setAttribute("role", "dialog");
@@ -237,10 +294,12 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         cell.classList.add("is-selected");
         highlight(column, key, true);
         const dismiss = openOverlay(() => {
+            closeInput = null;
             layer.remove();
             cell.classList.remove("is-selected");
             highlight(column, key, false);
         });
+        closeInput = dismiss;
         layer.addEventListener("click", (event) => {
             if (event.target === layer) dismiss();
         });
@@ -267,6 +326,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         names.append(el("span", "yamb-panel-title", ROW_NAMES[key]), el("span", "yamb-panel-sub", `${COLUMN_NAMES[column]} column`));
         const preview = el("output", "yamb-panel-preview");
         head.append(tile, names, preview);
+        const rule = el("p", "yamb-panel-rule", ROW_RULES[key] ?? `Add up only the ${PLURAL[face]}, best 5 dice.`); // shown on desktop
 
         const body = el("div", "yamb-panel-body");
         const hint = el("p", "yamb-panel-hint");
@@ -336,7 +396,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             else hint.textContent = "";
         }
 
-        panel.append(head, body, hint, actions);
+        panel.append(head, rule, body, hint, actions);
         screen.append(layer);
         placeNear(panel, cell);
         refresh();

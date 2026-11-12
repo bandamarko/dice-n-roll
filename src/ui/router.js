@@ -28,6 +28,7 @@ export function startRouter(container, first) {
   history.replaceState({ dicenroll: "base" }, "");
   window.addEventListener("popstate", onBack);
   for (const type of ["click", "keydown"]) window.addEventListener(type, onTap, true);
+  window.addEventListener("keydown", onEscape);
   stack.push({ name: first, params: {} });
   render();
 }
@@ -67,6 +68,15 @@ export function openOverlay(close) {
     close();
     sync();
   };
+}
+
+// Esc on a keyboard does what the back button does, but never leaves the app:
+// on the first screen with nothing open, it does nothing.
+function onEscape(event) {
+  if (event.key !== "Escape" || event.defaultPrevented) return;
+  if (event.target.closest?.("input, textarea")) return; // Esc while typing a name stays in the field
+  if (overlays.length === 0 && !backHandler && stack.length === 1) return;
+  history.back();
 }
 
 // Runs first for every click and key press (capture phase), before the button's own handler

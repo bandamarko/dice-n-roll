@@ -9,6 +9,8 @@ Features still to build are in TODO.md.
 - PWA built with Vite, plain HTML/CSS/JS, hosted free on GitHub Pages; also runs on localhost.
 - Works in the browser on Android and iOS; installable (also on desktop via Chrome/Edge).
 - Single-page app: one index.html, JS swaps screens inside <div id="app">.
+  Phones get a 480 px column; on desktop (min-width 1024px and min-height 600px)
+  screens with a desktop design widen to max 1440 px, centred.
 - Deploy: .github/workflows/deploy.yml runs on every push to main: npm ci,
   npm run build (base "/dice-n-roll/" in vite.config.js), publishes dist/.
   Settings → Pages → Source must be "GitHub Actions" (with "Deploy from a branch",
@@ -28,7 +30,7 @@ Features still to build are in TODO.md.
 - src/storage/: storage.js (save/load JSON in localStorage)
 - src/ui/: router.js, theme.js, themeSwitch.js, dom.js, icons.js, dialog.js,
   welcome.js, picker.js, setup.js, starterSpinner.js, game.js, gameMenu.js, end.js,
-  confetti.js, sheets/zonk.js, sheets/yamb.js
+  confetti.js, sheets/zonk.js, sheets/yamb.js, rules.js
 - Layers: games/ and state/ never touch the DOM; ui/ uses everything.
 
 ## Game state
@@ -158,11 +160,21 @@ Features still to build are in TODO.md.
 - Starter spinner: after Start, names roll through a slot window and stop on the
   (already random) starting player. Tap skips; no re-spins; skipped for 1 player
   and on Continue. The header hides the turn name until it closes.
-- Game menu (tap the logo on a scoresheet): Rules, Theme | New game (asks to
-  confirm, ends the saved game), Quit to welcome (game stays saved).
+- Game menu (tap the logo on a scoresheet): Rules (opens the rules pages), Theme |
+  New game (asks to confirm, ends the saved game), Quit to welcome (game stays saved).
 - Popups use one shared dialog; back closes it.
 - The phone's status bar follows the theme (theme-color meta, set by the inline
   script and by theme.js).
+  - No zooming: viewport maximum-scale=1 / user-scalable=no (Android), html
+    touch-action: pan-x pan-y (pinch and double tap), gesturestart prevented (iPhone).
+  - No overscroll: html and body have overscroll-behavior: none, so screens that fit
+    don't bounce or stretch, and pull-to-refresh can't reload the page mid-game.
+    Screens that are taller (the picker on small phones) still scroll normally.
+    - Keyboard (any screen size): Esc = back (closes overlays, leave popup, previous
+  screen); does nothing on the first screen with nothing open, or while typing in a
+  field. On a scoresheet Ctrl+Z = Undo, Ctrl+Y / Ctrl+Shift+Z = Redo (Cmd on Mac);
+  they press the real buttons and are ignored while a menu, popup or score panel is open.
+- Focus ring: :focus-visible gets a 2 px accent outline (keyboard only, not on taps).
 
 ### End screen
 
@@ -181,6 +193,28 @@ Features still to build are in TODO.md.
   theme), floats down for ~5 s and fades. Canvas, taps go through. Skipped when
   the phone asks for reduced motion.
 - Designed on the canvas (option B, trophy card), with light, dark and tie boards.
+
+### Rules pages (ui/rules.js)
+
+- rulesPager(game, { onDone }) builds tabs, a swipeable strip of pages and
+  Back / "2 / 5" / Next; Next becomes Done on the last page. One element, so the
+  desktop setup screen can reuse it.
+- In the game menu: a full-height panel (same size on every page) with a back arrow
+  to the menu, "<Game> rules" and the facts line. Done closes the whole menu.
+- Swiping is native scrolling: CSS scroll-snap (x mandatory, snap-stop always), so it
+  follows the finger and stops on a whole page. The code only reads which page is
+  showing (scrollLeft ÷ width) and updates the tabs, count and buttons. Tabs and
+  Back / Next scroll there smoothly (instantly with reduced motion); ← → keys also work.
+- Text uses **bold** markers turned into <b> elements (never innerHTML).
+- Zonk, 3 pages: Rules (5 steps, "First to the target score wins") · Scoring (single
+  dice, three of a kind) · Big throws (four / five / six of a kind ×2 / ×4 / ×8,
+  straight, three pairs). Dice drawn solid blue.
+- Yamb and Flash Yamb, 5 pages: Turn (4 steps; Flash adds its 5-dice tip) · Rows
+  (icon, how, points) · Totals (Sum 1, Difference with an example, Sum 2, total) ·
+  Columns (icon tiles from game.columns: 9 or 6) · Tip (Announce, Tip, Mandatory
+  for Yamb only, Skipped turn).
+- The picker card's flipped side keeps the short bullets from game.rules.
+- Designed on the canvas: boards 13 (light + dark).
 
 ### Zonk sheet
 
@@ -208,6 +242,18 @@ Features still to build are in TODO.md.
   bottom bar can reopen it.
   - Undo with a pending entry only erases it (the turn stays); with nothing pending,
     Undo goes back a real move. Redo is disabled while an entry is pending.
+    #### Desktop (style.css, Desktop section; canvas board 15)
+- Three columns: mini sheets (232 px) | the sheet | a right card (330 px).
+- Mini sheets: name, tag, total and a tiny map of the sheet (filled / crossed /
+  empty), in turn order starting one player back, so the current player is always
+  2nd (Last · Playing · Next). Four fit; the rest scroll (thin themed scrollbar).
+  Clicking one peeks at that sheet, same as the chips on phones.
+- The sheet shows row and column names (already in the HTML, hidden on phones).
+- The right card: Total and Confirm turn at the bottom (the bottom bar, restyled);
+  the score panel fills its top part, with a line saying what the row scores.
+  No dimming: clicking another open cell switches the panel (closeInput).
+- placeNear() only sets --panel-top / --panel-bottom; phones use them, desktop ignores them.
+- The hint says "Click" with a mouse, "Tap" on touch screens.
 
 ### Back button
 
