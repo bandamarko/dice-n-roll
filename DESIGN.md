@@ -19,9 +19,9 @@ Features still to build are in TODO.md.
 
 ## Structure
 
-- index.html: theme script, manifest, icons, theme-color meta
+- index.html: theme script, manifest, icons, theme-color meta, link-preview (Open Graph) tags
 - public/: copied as-is into the built site
-  - manifest.webmanifest, sw.js (service worker), favicon.svg
+  - manifest.webmanifest, sw.js (service worker), favicon.svg, og-image.png
   - icons/: icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png
 - src/main.js: wires screens to the router, starts theme and router, registers the
   service worker (built app only)
@@ -158,6 +158,9 @@ Features still to build are in TODO.md.
 - Picker: one card per game, all the same height. Tap the card to flip it to its
   rules (several can be flipped); a separate Play button opens setup. Coming back,
   all cards are unflipped.
+- Picker on desktop: the cards in one row (auto-fit, min 260 px, so a 4th game
+  still fits), centred on the screen, max 1200 px with the header lined up; bigger
+  text; the card under the mouse gets an accent outline; the hint says "Click for rules".
 - Setup: names up to 16 characters, no duplicates; reorder by the grip handle
   (drag, or arrow keys). Names stay when switching games; the player-count check
   only runs when Start is pressed. Start saves the game, then opens it.
@@ -169,12 +172,12 @@ Features still to build are in TODO.md.
 - Popups use one shared dialog; back closes it.
 - The phone's status bar follows the theme (theme-color meta, set by the inline
   script and by theme.js).
-  - No zooming: viewport maximum-scale=1 / user-scalable=no (Android), html
-    touch-action: pan-x pan-y (pinch and double tap), gesturestart prevented (iPhone).
-  - No overscroll: html and body have overscroll-behavior: none, so screens that fit
-    don't bounce or stretch, and pull-to-refresh can't reload the page mid-game.
-    Screens that are taller (the picker on small phones) still scroll normally.
-    - Keyboard (any screen size): Esc = back (closes overlays, leave popup, previous
+- No zooming: viewport maximum-scale=1 / user-scalable=no (Android), html
+  touch-action: pan-x pan-y (pinch and double tap), gesturestart prevented (iPhone).
+- No overscroll: html and body have overscroll-behavior: none, so screens that fit
+  don't bounce or stretch, and pull-to-refresh can't reload the page mid-game.
+  Screens that are taller (the picker on small phones) still scroll normally.
+- Keyboard (any screen size): Esc = back (closes overlays, leave popup, previous
   screen); does nothing on the first screen with nothing open, or while typing in a
   field. On a scoresheet Ctrl+Z = Undo, Ctrl+Y / Ctrl+Shift+Z = Redo (Cmd on Mac);
   they press the real buttons and are ignored while a menu, popup or score panel is open.
@@ -219,6 +222,9 @@ Features still to build are in TODO.md.
   for Yamb only, Skipped turn).
 - The picker card's flipped side keeps the short bullets from game.rules.
 - Designed on the canvas: boards 13 (light + dark).
+- Keys page (last tab), only with a mouse and keyboard ((hover: hover) and
+  (pointer: fine)): key caps (<kbd>) with what they do, grouped Everywhere /
+  On the sheet / In the score panel. Zonk shows Everywhere until its keys exist.
 
 ### Zonk sheet
 
@@ -235,7 +241,7 @@ Features still to build are in TODO.md.
 - Open cells = what canEnter allows; locked cells are grey; finished columns look the same.
 - Tapping an open cell opens a floating score panel next to it (below the cell in
   the top half, above it in the bottom half) with the column's icon and a live preview:
-  dice count for Ones–Sixes, numpad for Max/Min, 46/56/66 for Straight, faces for
+  dice count for Ones–Sixes, numpad for Max/Min, 66/56/46 for Straight (by throw), faces for
   Triple/Poker/Yamb, two face rows for Full house; Maximum shows only its best value.
   Enter only enables for a legal value.
 - Enter or "/" makes a pending entry (own color, sums and total preview); another
@@ -246,7 +252,9 @@ Features still to build are in TODO.md.
   bottom bar can reopen it.
   - Undo with a pending entry only erases it (the turn stays); with nothing pending,
     Undo goes back a real move. Redo is disabled while an entry is pending.
-    #### Desktop (style.css, Desktop section; canvas board 15)
+
+#### Desktop (style.css, Desktop section; canvas board 15)
+
 - Three columns: mini sheets (232 px) | the sheet | a right card (330 px).
 - Mini sheets: name, tag, total and a tiny map of the sheet (filled / crossed /
   empty), in turn order starting one player back, so the current player is always
@@ -258,6 +266,13 @@ Features still to build are in TODO.md.
   No dimming: clicking another open cell switches the panel (closeInput).
 - placeNear() only sets --panel-top / --panel-bottom; phones use them, desktop ignores them.
 - The hint says "Click" with a mouse, "Tap" on touch screens.
+- Keyboard: arrows jump to the nearest open cell in that direction (same row / column
+  preferred; the first press starts on the first open cell, an open panel closes);
+  Enter opens the focused cell. In the panel: Ones–Sixes 1–5 = how many; Max / Min
+  type the sum, Backspace, Delete clears; Straight 1 / 2 / 3 = which throw (66 / 56 / 46);
+  Triple / Poker / Yamb 1–6; Full house first digit = three, second = pair; / = cross
+  out; Enter = Enter; Esc = cancel. With an entry pending, Enter again = Confirm turn.
+  The keys are listed on the rules' Keys page.
 
 ### Back button
 
@@ -284,6 +299,13 @@ Features still to build are in TODO.md.
 - End screen: gold #FFC24B, silver #C9D3DD, bronze #E3A869; bar #5B9BD9 (dark #6FAEE8).
 - SVG assets carry their light colors as attributes on the element that has the
   class, so CSS can override them per theme.
+  - Hover (mouse only, @media (hover: hover)), canvas board 22 option A: colour shift +
+    soft shadow + 3 px glow ring, 0.15 s. Filled buttons get 14 % lighter and glow in
+    their own colour (red for Zonk / danger); everything else gets a 12 % accent tint
+    and the accent glow. Built from --hover-glow, --hover-glow-danger, --hover-lighten
+    and --hover-tint; the colour shift is an inset shadow so it fades with the glow.
+    Disabled and already-selected things don't react. Yamb open cells and mini sheets
+    included.
 
 ## Branding
 

@@ -204,10 +204,59 @@ function yambPages(game) {
   ];
 }
 
+// ---------- Keys (only with a mouse and keyboard) ----------
+
+const HAS_KEYBOARD = "(hover: hover) and (pointer: fine)";
+
+// One line: key caps | what they do. "Ctrl+Z" becomes two caps, "1–5" stays one
+function keyRow(keys, what) {
+  const line = el("div", "rules-key");
+  const caps = el("span", "rules-key-caps");
+  for (const key of keys) caps.append(el("kbd", "", key));
+  line.append(caps, rich("rules-key-what", what));
+  return line;
+}
+
+function keyGroup(label, rows) {
+  const box = el("div", "rules-group");
+  box.append(el("span", "rules-group-label", label), ...rows.map(([keys, what]) => keyRow(keys, what)));
+  return box;
+}
+
+const EVERYWHERE = [
+  [["Esc"], "Back, or close what's open"],
+  [["Ctrl", "Z"], "Undo"],
+  [["Ctrl", "Y"], "Redo"],
+];
+
+function keysPage(game) {
+  const groups = [keyGroup("Everywhere", EVERYWHERE)];
+  if (game.id !== "zonk") {
+    groups.push(
+      keyGroup("On the sheet", [
+        [["←", "↑", "→", "↓"], "Jump between open cells"],
+        [["Enter"], "Score the chosen cell"],
+        [["Enter"], "Again: **Confirm turn**"],
+      ]),
+      keyGroup("In the score panel", [
+        [["1–5"], "Ones to Sixes: how many"],
+        [["0–9"], "Max / Min: type the sum"],
+        [["1", "2", "3"], "Straight: which throw (66 / 56 / 46)"],
+        [["1–6"], "Triple, Poker, Yamb: the number"],
+        [["1–6", "1–6"], "Full: the three, then the pair"],
+        [["/"], "Cross out"],
+        [["Enter"], "Enter"],
+      ]),
+    );
+  }
+  return { tab: "Keys", title: "Keyboard shortcuts", build: () => groups };
+}
+
 // ---------- The pager ----------
 
 export function rulesPager(game, { onDone }) {
   const pages = game.id === "zonk" ? zonkPages() : yambPages(game);
+  if (matchMedia(HAS_KEYBOARD).matches) pages.push(keysPage(game)); // phones don't get a Keys page
   const last = pages.length - 1;
   let current = 0;
 

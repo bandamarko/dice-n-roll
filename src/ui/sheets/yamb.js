@@ -33,6 +33,11 @@ const ROW_RULES = {
 };
 const FACES = [1, 2, 3, 4, 5, 6];
 
+// Arrow key → [columns to the right, rows down]
+const ARROWS = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+// Straight by throw: 1 = made on throw 1 (66), 2 = throw 2 (56), 3 = throw 3 (46)
+const STRAIGHT_KEYS = { 1: 66, 2: 56, 3: 46 };
+
 // Rows top to bottom as drawn: the 13 scoring rows with the 3 sum rows in between
 const LAYOUT = ["ones", "twos", "threes", "fours", "fives", "sixes", "sum1",
     "max", "min", "difference", "straight", "triple", "full", "poker", "yamb", "sum2"];
@@ -49,6 +54,9 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     let closePeek = null;         // set while peeking; closes the peek like the back button
     let pending = null;           // { column, row, value } entered but not confirmed yet
     let closeInput = null;        // set while the score panel is open
+
+    let panelKey = null;          // the open score panel's key handler
+    let inputCell = null;         // the cell the open score panel belongs to
 
     function clearPending() {
         pending = null;
@@ -295,11 +303,14 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         highlight(column, key, true);
         const dismiss = openOverlay(() => {
             closeInput = null;
+            panelKey = null;
+            inputCell = null;
             layer.remove();
             cell.classList.remove("is-selected");
             highlight(column, key, false);
         });
         closeInput = dismiss;
+        inputCell = cell;
         layer.addEventListener("click", (event) => {
             if (event.target === layer) dismiss();
         });
@@ -362,7 +373,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             pad.append(button("yamb-key", { icon: BACKSPACE, label: "Backspace", onClick: () => { pick.typed = pick.typed.slice(0, -1); refresh(); } }));
             body.append(el("span", "yamb-panel-label", "Sum of your best 5 dice (5–30)"), pad);
         } else if (key === "straight") {
-            parts.push(choices("Pick the value", [66, 56, 46].map((v) => ({ value: v, text: String(v) })), (v) => pick.straight === v, (v) => (pick.straight = v), "yamb-choice is-big"));
+            parts.push(choices("Pick the value (66 on throw 1, 56 on 2, 46 on 3)", [66, 56, 46].map((v) => ({ value: v, text: String(v) })), (v) => pick.straight === v, (v) => (pick.straight = v), "yamb-choice is-big"));
         } else {
             // Screen-reader names for the face buttons, e.g. "Four sixes" for Poker
             const dice = (prefix) => FACES.map((f) => ({ value: f, icon: DICE[f], label: `${prefix} ${PLURAL[f]}` }));
@@ -395,6 +406,37 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             else if ((key === "max" || key === "min") && pick.typed && !ok) hint.textContent = "Must be 5–30";
             else hint.textContent = "";
         }
+
+        // Keyboard, for the panel that's open (see onKey below)
+        panelKey = (event) => {
+            const k = event.key;
+            const digit = /^[0-9]$/.test(k) ? Number(k) : null;
+            if (k === "Enter") {
+                if (!enter.disabled) choose(value());
+            } else if (k === "/") {
+                choose(0);
+            } else if (isMaximum) {
+                return false;
+            } else if (face <= 6) {
+                if (digit === null || digit < 1 || digit > 5) return false;
+                pick.count = digit;
+            } else if (key === "max" || key === "min") {
+                if (digit !== null) { if (pick.typed.length < 2) pick.typed = (pick.typed + k).replace(/^0+/, ""); }
+                else if (k === "Backspace") pick.typed = pick.typed.slice(0, -1);
+                else if (k === "Delete") pick.typed = "";
+                else return false;
+            } else if (key === "straight") {
+                if (!STRAIGHT_KEYS[digit]) return false;
+                pick.straight = STRAIGHT_KEYS[digit];
+            } else {
+                if (digit === null || digit < 1 || digit > 6) return false;
+                // Full house: the first number is the three, the second the pair; a third press starts over
+                if (key === "full" && pick.a && !pick.b) pick.b = digit;
+                else { pick.a = digit; pick.b = null; }
+            }
+            if (closeInput) refresh(); // still open (Enter and / close it)
+            return true;
+        };
 
         panel.append(head, rule, body, hint, actions);
         screen.append(layer);

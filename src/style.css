@@ -1253,6 +1253,36 @@ h3 {
   flex: none;
 }
 
+/* Keys page (only with a mouse and keyboard) */
+.rules-key {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  padding: 1px 0;
+  border-top: 1px solid var(--locked);
+  font-size: 13px;
+  color: var(--body);
+}
+.rules-key-caps {
+  flex: none;
+  width: 136px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+kbd {
+  min-width: 26px;
+  padding: 2px 7px;
+  border-radius: 7px;
+  border: 1px solid var(--panel-border);
+  border-bottom-width: 2px; /* looks like a key cap */
+  background: var(--bg);
+  color: var(--ink);
+  font: 600 12px Inter, system-ui, sans-serif;
+  text-align: center;
+}
+
 /* Back / count / Next */
 .rules-nav {
   display: flex;
@@ -3160,5 +3190,63 @@ h3 {
     font-size: 13px;
     line-height: 1.4;
     color: var(--body);
+  }
+}
+
+/* ---------- Hover effects ----------
+   Only with a mouse (phones would leave them "stuck" after a tap). One recipe for
+   everything, canvas board 22, option A: a colour shift, a soft shadow under it and a
+   thin glow ring. The colour shift is an inset shadow over the whole button, so it
+   fades together with the shadow (a background image can't fade). */
+
+@media (hover: hover) {
+  :root {
+    --hover-glow: 0 4px 10px -2px color-mix(in srgb, var(--accent) 45%, transparent),
+      0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    --hover-glow-danger: 0 4px 10px -2px color-mix(in srgb, var(--danger) 45%, transparent),
+      0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
+    --hover-lighten: inset 0 0 0 100vmax rgb(255 255 255 / 0.14); /* filled buttons get lighter */
+    --hover-tint: inset 0 0 0 100vmax color-mix(in srgb, var(--accent) 12%, transparent); /* the rest get a blue tint */
+  }
+
+  :is(
+      .button-primary, .button-outline, .card-play, .name-add, .chip, .name-remove, .icon-button,
+      .game-menu-button, .menu-item, .numpad-key, .zonk-action, .rules-tab, .rules-prev,
+      .rules-next, .dialog-button, .yamb-chip, .yamb-peek-bar, .yamb-choice, .yamb-key,
+      .yamb-cross, .yamb-cancel, .yamb-enter, .yamb-confirm, .yamb-cell.is-open, .yamb-mini,
+      .end-done
+    ) {
+    transition: box-shadow 0.15s ease;
+  }
+
+  /* Filled buttons: lighter + glow in their own colour */
+  :is(.button-primary, .card-play, .name-add, .rules-next, .dialog-primary, .zonk-action-bank,
+      .yamb-enter, .yamb-confirm):not(:disabled):hover {
+    box-shadow: var(--hover-lighten), var(--hover-glow);
+  }
+  :is(.zonk-action-zonk, .dialog-danger):not(:disabled):hover {
+    box-shadow: var(--hover-lighten), var(--hover-glow-danger);
+  }
+
+  /* Everything else: a blue tint + glow */
+  :is(.button-outline, .icon-button, .game-menu-button, .menu-item, .numpad-key, .zonk-action-plus,
+      .rules-prev, .dialog-secondary, .yamb-cancel, .yamb-cross, .yamb-key, .yamb-peek-bar, .end-done,
+      .name-remove, .chip:not([aria-pressed="true"]), .rules-tab:not([aria-selected="true"]),
+      .yamb-chip:not(.is-current), .yamb-choice:not([aria-pressed="true"])):not(:disabled):hover {
+    box-shadow: var(--hover-tint), var(--hover-glow);
+  }
+
+  /* Yamb: open cells keep their outline; mini sheets get one */
+  .yamb-cell.is-open:not(.is-selected):hover {
+    box-shadow: inset 0 0 0 1.5px var(--accent), var(--hover-tint), var(--hover-glow);
+  }
+  .yamb-mini:not(.is-current):hover {
+    box-shadow: inset 0 0 0 2px var(--panel-border), var(--hover-glow);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  :is(.button-primary, .button-outline, .card-play, .numpad-key, .zonk-action, .yamb-cell.is-open, .yamb-mini) {
+    transition: none;
   }
 }
