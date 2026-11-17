@@ -9,6 +9,7 @@ import { saveGame } from "../storage/storage.js";
 import { go, back } from "./router.js";
 import { showDialog } from "./dialog.js";
 import { appIcon, BACK, GRIP, CLOSE } from "./icons.js";
+import { rulesPager } from "./rules.js";
 
 const MAX_NAME_LENGTH = 16;
 const ZONK_TARGETS = [3000, 5000, 10000];
@@ -167,7 +168,16 @@ export function showSetup(root, { gameId }) {
     input.focus();
   });
 
-  screen.append(header, players);
+    // The game's rules next to the setup: desktop only, phones hide it (CSS)
+  const rules = el("section", "setup-rules");
+  const facts = `${game.minPlayers}–${game.maxPlayers} players · ${game.dice} dice`;
+  rules.append(
+    el("h2", "setup-heading", `${game.name} rules`),
+    el("p", "setup-rules-facts", game.rules.extra ? `${facts} · ${game.rules.extra}` : facts),
+    rulesPager(game),
+  );
+
+  screen.append(header, rules, players);
 
   // Game options (only Zonk has any for now)
   if (gameId === "zonk") screen.append(zonkOptions(options));

@@ -164,6 +164,9 @@ Features still to build are in TODO.md.
 - Setup: names up to 16 characters, no duplicates; reorder by the grip handle
   (drag, or arrow keys). Names stay when switching games; the player-count check
   only runs when Start is pressed. Start saves the game, then opens it.
+  - Setup on desktop (canvas board 18): the rules pages on the left (rulesPager without
+    onDone, so the last page has no Done), Players (+ Target score for Zonk) on the right,
+    Start game pinned to the bottom; name rows 40 px so 8 players fit without scrolling.
 - Starter spinner: after Start, names roll through a slot window and stop on the
   (already random) starting player. Tap skips; no re-spins; skipped for 1 player
   and on Continue. The header hides the turn name until it closes.

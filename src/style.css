@@ -72,8 +72,7 @@ h3 {
   font-family: "Bricolage Grotesque", Inter, sans-serif;
 }
 
-/* Phone width for now; on a wide screen the app sits centered.
-   The real desktop layout will be added here later with a media query. */
+/* Phone width; wide screens get their own layout in the Desktop section at the end */
 #app {
   max-width: 480px;
   min-height: 100dvh;
@@ -879,6 +878,19 @@ h3 {
   color: var(--on-accent);
 }
 
+/* Desktop-only parts of the Zonk sheet; on phones the panel doesn't affect the layout */
+.zonk-order-title,
+.zonk-player-tag,
+.zonk-player-lead,
+.zonk-player-togo,
+.zonk-bank-preview,
+.zonk-key {
+  display: none;
+}
+.zonk-panel {
+  display: contents;
+}
+
 /* ---------- Game menu ---------- */
 
 .menu-layer {
@@ -1279,7 +1291,10 @@ kbd {
   border-bottom-width: 2px; /* looks like a key cap */
   background: var(--bg);
   color: var(--ink);
-  font: 600 12px Inter, system-ui, sans-serif;
+  font:
+    600 12px Inter,
+    system-ui,
+    sans-serif;
   text-align: center;
 }
 
@@ -1307,7 +1322,8 @@ kbd {
   background: var(--bg);
   color: var(--ink);
 }
-.rules-prev:disabled {
+.rules-prev:disabled,
+.rules-next:disabled {
   opacity: 0.4;
   cursor: default;
 }
@@ -1338,6 +1354,7 @@ kbd {
   --bar: #5b9bd9;
   --bar-track: #d8e6f1;
   --divider: #e3eef7;
+  --lead: #a86a00;
 }
 
 :root[data-theme="dark"] {
@@ -1345,6 +1362,7 @@ kbd {
   --bar: #6faee8;
   --bar-track: #1e3a57;
   --divider: #24456a;
+  --lead: #ffc24b;
 }
 
 .end-screen {
@@ -1925,6 +1943,11 @@ kbd {
   text-align: center;
   font-size: 13px;
   color: var(--muted);
+}
+
+/* The rules next to the setup: only on desktop */
+.setup-rules {
+  display: none;
 }
 
 /* ---------- Dialog ---------- */
@@ -2815,15 +2838,15 @@ kbd {
    Designed on the canvas, boards 14–19. */
 
 @media (min-width: 1024px) and (min-height: 600px) {
-  #app:has(.yamb-grid) {
+  #app:has(.yamb-grid, .zonk-players) {
     max-width: 1440px;
   }
 
   /* The game menu sits under the logo, which is now at the wide app's left edge */
-  #app:has(.yamb-grid) .menu-panel {
+  #app:has(.yamb-grid, .zonk-players) .menu-panel {
     left: max(24px, calc(50% - 720px + 24px));
   }
-  #app:has(.yamb-grid) .menu-panel-rules {
+  #app:has(.yamb-grid, .zonk-players) .menu-panel-rules {
     right: auto;
     width: 420px;
   }
@@ -2867,6 +2890,57 @@ kbd {
   }
   .welcome-actions {
     width: 420px;
+  }
+
+  /* ----- Setup: the rules on the left, players and options on the right ----- */
+
+  #app:has(> .setup) {
+    max-width: 1440px;
+  }
+  .setup {
+    padding: 16px 32px 24px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 460px;
+    grid-template-rows: auto auto auto 1fr; /* header · players · options · Start */
+    column-gap: 24px;
+    row-gap: 16px;
+  }
+  .setup > .screen-header {
+    grid-column: 1 / -1;
+  }
+  .setup > :not(.screen-header, .setup-rules) {
+    grid-column: 2;
+  }
+  .setup-footer {
+    grid-row: 4; /* always the last row, even when there are no options (Yamb) */
+    align-self: end;
+  }
+  .setup-rules {
+    grid-column: 1;
+    grid-row: 2 / -1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px;
+    border-radius: 22px;
+    background: var(--card);
+  }
+  .setup-rules-facts {
+    margin: -4px 0 4px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  /* shorter name rows, so 8 players still fit on a laptop screen without scrolling */
+  .setup .name-row {
+    height: 40px;
+  }
+  .setup .name-list {
+    gap: 4px;
+  }
+  /* inside a card the tabs and Back button need the page colour to stand out */
+  .setup-rules .rules-tab[aria-selected="true"] {
+    background: var(--sum);
   }
 
   /* ----- Picker: the game cards side by side ----- */
@@ -2929,21 +3003,169 @@ kbd {
     }
   }
 
+  /* ----- Zonk sheet: players in turn order | the turn panel ----- */
+
+  .game-body:has(.zonk-players) {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 24px;
+    row-gap: 8px;
+  }
+  .zonk-order-title {
+    display: block;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .zonk-players,
+  .zonk-players.is-compact {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: 1fr; /* one list, even for 5–8 players */
+    align-content: start;
+    gap: 10px;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .zonk-player {
+    order: var(
+      --turn
+    ); /* turn order: the player before, then the one playing, … */
+    padding: 14px 18px;
+    border-radius: 16px;
+    gap: 10px;
+  }
+  .zonk-player-top {
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 17px;
+  }
+  .zonk-player-tag {
+    display: inline;
+    flex: none;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .zonk-player-tag.is-playing {
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 700;
+  }
+  .zonk-player-lead {
+    display: inline;
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--lead);
+  }
+  .zonk-player-togo {
+    display: inline;
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .zonk-player-total {
+    min-width: 72px;
+    text-align: right;
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 24px;
+  }
+  .zonk-bar {
+    height: 8px;
+  }
+  .zonk-player:not(.is-current) .zonk-bar-fill {
+    background: var(--bar);
+  }
+
+  /* The turn panel: a full-height card on the right */
+  .zonk-panel {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    background: var(--card);
+  }
+  .zonk-turn {
+    margin-top: 0;
+    padding: 0;
+    gap: 10px;
+  }
+  .zonk-turn-value {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+  }
+  .zonk-throw-line {
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: var(--bg);
+  }
+  .zonk-throw-value {
+    font-size: 40px;
+  }
+  .zonk-panel .numpad-key {
+    background: var(--bg);
+  }
+  .zonk-bank-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: auto 0 0; /* pushes the preview and the buttons to the bottom */
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--bg);
+    font-size: 14px;
+    color: var(--body);
+  }
+  .zonk-bank-preview-value {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .zonk-actions {
+    grid-template-columns: 1fr 76px 1.6fr;
+  }
+  .zonk-action {
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+  }
+  .zonk-key {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.75;
+  }
+
   /* ----- Yamb sheet: mini sheets | the sheet | score panel ----- */
 
-  .game-screen:has(.yamb-grid) {
+  .game-screen:has(.yamb-grid, .zonk-players) {
     height: 100dvh;
     padding: 12px 24px 24px;
   }
-  .game-screen:has(.yamb-grid) .game-header {
+  .game-screen:has(.yamb-grid, .zonk-players) .game-header {
     gap: 14px;
   }
-  .game-screen:has(.yamb-grid) .game-title {
+  .game-screen:has(.yamb-grid, .zonk-players) .game-title {
     flex: none;
     align-items: flex-start;
     text-align: left;
   }
-  .game-screen:has(.yamb-grid) .game-tools {
+  .game-screen:has(.yamb-grid, .zonk-players) .game-tools {
     margin-left: auto;
   }
 
@@ -3201,27 +3423,59 @@ kbd {
 
 @media (hover: hover) {
   :root {
-    --hover-glow: 0 4px 10px -2px color-mix(in srgb, var(--accent) 45%, transparent),
+    --hover-glow:
+      0 4px 10px -2px color-mix(in srgb, var(--accent) 45%, transparent),
       0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
-    --hover-glow-danger: 0 4px 10px -2px color-mix(in srgb, var(--danger) 45%, transparent),
+    --hover-glow-danger:
+      0 4px 10px -2px color-mix(in srgb, var(--danger) 45%, transparent),
       0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
     --hover-lighten: inset 0 0 0 100vmax rgb(255 255 255 / 0.14); /* filled buttons get lighter */
-    --hover-tint: inset 0 0 0 100vmax color-mix(in srgb, var(--accent) 12%, transparent); /* the rest get a blue tint */
+    --hover-tint: inset 0 0 0 100vmax
+      color-mix(in srgb, var(--accent) 12%, transparent); /* the rest get a blue tint */
   }
 
   :is(
-      .button-primary, .button-outline, .card-play, .name-add, .chip, .name-remove, .icon-button,
-      .game-menu-button, .menu-item, .numpad-key, .zonk-action, .rules-tab, .rules-prev,
-      .rules-next, .dialog-button, .yamb-chip, .yamb-peek-bar, .yamb-choice, .yamb-key,
-      .yamb-cross, .yamb-cancel, .yamb-enter, .yamb-confirm, .yamb-cell.is-open, .yamb-mini,
-      .end-done
-    ) {
+    .button-primary,
+    .button-outline,
+    .card-play,
+    .name-add,
+    .chip,
+    .name-remove,
+    .icon-button,
+    .game-menu-button,
+    .menu-item,
+    .numpad-key,
+    .zonk-action,
+    .rules-tab,
+    .rules-prev,
+    .rules-next,
+    .dialog-button,
+    .yamb-chip,
+    .yamb-peek-bar,
+    .yamb-choice,
+    .yamb-key,
+    .yamb-cross,
+    .yamb-cancel,
+    .yamb-enter,
+    .yamb-confirm,
+    .yamb-cell.is-open,
+    .yamb-mini,
+    .end-done
+  ) {
     transition: box-shadow 0.15s ease;
   }
 
   /* Filled buttons: lighter + glow in their own colour */
-  :is(.button-primary, .card-play, .name-add, .rules-next, .dialog-primary, .zonk-action-bank,
-      .yamb-enter, .yamb-confirm):not(:disabled):hover {
+  :is(
+      .button-primary,
+      .card-play,
+      .name-add,
+      .rules-next,
+      .dialog-primary,
+      .zonk-action-bank,
+      .yamb-enter,
+      .yamb-confirm
+    ):not(:disabled):hover {
     box-shadow: var(--hover-lighten), var(--hover-glow);
   }
   :is(.zonk-action-zonk, .dialog-danger):not(:disabled):hover {
@@ -3229,24 +3483,53 @@ kbd {
   }
 
   /* Everything else: a blue tint + glow */
-  :is(.button-outline, .icon-button, .game-menu-button, .menu-item, .numpad-key, .zonk-action-plus,
-      .rules-prev, .dialog-secondary, .yamb-cancel, .yamb-cross, .yamb-key, .yamb-peek-bar, .end-done,
-      .name-remove, .chip:not([aria-pressed="true"]), .rules-tab:not([aria-selected="true"]),
-      .yamb-chip:not(.is-current), .yamb-choice:not([aria-pressed="true"])):not(:disabled):hover {
+  :is(
+      .button-outline,
+      .icon-button,
+      .game-menu-button,
+      .menu-item,
+      .numpad-key,
+      .zonk-action-plus,
+      .rules-prev,
+      .dialog-secondary,
+      .yamb-cancel,
+      .yamb-cross,
+      .yamb-key,
+      .yamb-peek-bar,
+      .end-done,
+      .name-remove,
+      .chip:not([aria-pressed="true"]),
+      .rules-tab:not([aria-selected="true"]),
+      .yamb-chip:not(.is-current),
+      .yamb-choice:not([aria-pressed="true"])
+    ):not(:disabled):hover {
     box-shadow: var(--hover-tint), var(--hover-glow);
   }
 
   /* Yamb: open cells keep their outline; mini sheets get one */
   .yamb-cell.is-open:not(.is-selected):hover {
-    box-shadow: inset 0 0 0 1.5px var(--accent), var(--hover-tint), var(--hover-glow);
+    box-shadow:
+      inset 0 0 0 1.5px var(--accent),
+      var(--hover-tint),
+      var(--hover-glow);
   }
   .yamb-mini:not(.is-current):hover {
-    box-shadow: inset 0 0 0 2px var(--panel-border), var(--hover-glow);
+    box-shadow:
+      inset 0 0 0 2px var(--panel-border),
+      var(--hover-glow);
   }
 }
 
 @media (hover: hover) and (prefers-reduced-motion: reduce) {
-  :is(.button-primary, .button-outline, .card-play, .numpad-key, .zonk-action, .yamb-cell.is-open, .yamb-mini) {
+  :is(
+    .button-primary,
+    .button-outline,
+    .card-play,
+    .numpad-key,
+    .zonk-action,
+    .yamb-cell.is-open,
+    .yamb-mini
+  ) {
     transition: none;
   }
 }

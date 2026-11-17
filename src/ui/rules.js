@@ -231,7 +231,17 @@ const EVERYWHERE = [
 
 function keysPage(game) {
   const groups = [keyGroup("Everywhere", EVERYWHERE)];
-  if (game.id !== "zonk") {
+  if (game.id === "zonk") {
+    groups.push(
+      keyGroup("On the sheet", [
+        [["0–9"], "Type the throw"],
+        [["Backspace"], "Delete the last digit"],
+        [["+"], "Plus: all dice scored, keep throwing"],
+        [["Enter"], "Bank"],
+        [["Z"], "Zonk"],
+      ]),
+    );
+  } else {
     groups.push(
       keyGroup("On the sheet", [
         [["←", "↑", "→", "↓"], "Jump between open cells"],
@@ -254,7 +264,7 @@ function keysPage(game) {
 
 // ---------- The pager ----------
 
-export function rulesPager(game, { onDone }) {
+export function rulesPager(game, { onDone } = {}) {
   const pages = game.id === "zonk" ? zonkPages() : yambPages(game);
   if (matchMedia(HAS_KEYBOARD).matches) pages.push(keysPage(game)); // phones don't get a Keys page
   const last = pages.length - 1;
@@ -304,7 +314,8 @@ export function rulesPager(game, { onDone }) {
     tabButtons.forEach((tab, i) => tab.setAttribute("aria-selected", String(i === page)));
     count.textContent = `${page + 1} / ${pages.length}`;
     prev.disabled = page === 0;
-    next.replaceChildren(page === last ? "Done" : "Next");
+    next.replaceChildren(page === last && onDone ? "Done" : "Next");
+    next.disabled = page === last && !onDone; // without onDone (setup), the last page just stops
     next.insertAdjacentHTML("beforeend", CHEVRON);
   }
 

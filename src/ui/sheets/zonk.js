@@ -17,14 +17,24 @@ export function renderZonk(container, { state, game, play }) {
   const totals = game.computeTotals(sheet);
   const target = sheet.options.target;
   let typed = ""; // the throw being typed, as a string of digits
+  const leader = Math.max(...totals);
 
-  // Players
+  // Players. On desktop they're shown in turn order, starting one player back, with
+  // Last / Playing / Next, who's leading and how far each one is from the target
+  const orderTitle = el("p", "zonk-order-title", `Turn order · first to ${format(target)} wins`);
   const list = el("ol", players.length > 4 ? "zonk-players is-compact" : "zonk-players");
   players.forEach((name, i) => {
     const row = el("li", i === currentPlayer ? "zonk-player is-current" : "zonk-player");
     if (i === currentPlayer) row.setAttribute("aria-current", "true");
+    const step = (i - currentPlayer + 1 + players.length) % players.length; // 0 = the player before, 1 = now
+    row.style.setProperty("--turn", step); // desktop CSS sorts the rows by this
     const top = el("div", "zonk-player-top");
-    top.append(el("span", "zonk-player-name", name), el("span", "zonk-player-total", format(totals[i])));
+    top.append(el("span", "zonk-player-name", name));
+    const tag = players.length > 2 || step > 0 ? ["Last", "Playing", "Next"][step] : null;
+    if (tag) top.append(el("span", tag === "Playing" ? "zonk-player-tag is-playing" : "zonk-player-tag", tag));
+    if (players.length > 1 && totals[i] === leader && leader > 0) top.append(el("span", "zonk-player-lead", "Leading"));
+    top.append(el("span", "zonk-player-togo", `${format(Math.max(0, target - totals[i]))} to go`));
+    top.append(el("span", "zonk-player-total", format(totals[i])));
     const bar = el("div", "zonk-bar");
     const fillBar = el("div", "zonk-bar-fill");
     fillBar.style.width = `${Math.min(100, (totals[i] / target) * 100)}%`; // data, not layout
@@ -63,7 +73,18 @@ export function renderZonk(container, { state, game, play }) {
   const zonkButton = button("zonk-action zonk-action-zonk", { text: "Zonk", onClick: () => play({ type: "zonk" }) });
   const plusButton = button("zonk-action zonk-action-plus", { text: "+", label: "Plus: all dice scored, keep throwing", onClick: () => play({ type: "plus", points: Number(typed) }) });
   const bankButton = button("zonk-action zonk-action-bank", { onClick: () => play({ type: "bank", points: Number(typed) }) });
+  const bankLabel = el("span", "zonk-action-label");
+  bankButton.append(bankLabel);
+  // The key for each button, shown under it on desktop
+  zonkButton.append(el("span", "zonk-key", "Z"));
+  plusButton.append(el("span", "zonk-key", "+"));
+  bankButton.append(el("span", "zonk-key", "Enter"));
   actions.append(zonkButton, plusButton, bankButton);
+
+  // What Bank would do, shown above the buttons on desktop
+  const preview = el("p", "zonk-bank-preview");
+  const previewValue = el("span", "zonk-bank-preview-value");
+  preview.append(`If ${players[currentPlayer]} banks now`, previewValue);
 
   function refresh() {
     const points = Number(typed);
@@ -71,7 +92,9 @@ export function renderZonk(container, { state, game, play }) {
     const entry = (type) => ({ type, points });
     plusButton.disabled = !game.canEnter(sheet, currentPlayer, entry("plus"));
     bankButton.disabled = !game.canEnter(sheet, currentPlayer, entry("bank"));
-    bankButton.textContent = `Bank ${format(sheet.turn.subtotal + points)}`;
+    bankLabel.textContent = `Bank ${format(sheet.turn.subtotal + points)}`;
+    const now = totals[currentPlayer];
+    previewValue.textContent = bankButton.disabled ? `${format(now)} → –` : `${format(now)} → ${format(now + sheet.turn.subtotal + points)}`;
 
     // Say why the buttons are off, so a typo or the 300 rule is never a mystery
     if (!typed) hint.textContent = sheet.turn.plusUsed ? "Type your next throw" : `Type your throw (first one needs ${game.entryThreshold}+)`;
@@ -80,6 +103,27 @@ export function renderZonk(container, { state, game, play }) {
     else hint.textContent = "";
   }
 
-  container.append(list, turn, pad, actions);
+  // On phones the panel is invisible to the layout (display: contents); on desktop it's the right column
+  const panel = el("div", "zonk-panel");
+  panel.append(turn, pad, preview, actions);
+  container.append(orderTitle, list, panel);
   refresh();
+
+  // Keyboard: digits type the throw, Backspace deletes, Delete clears, + = Plus,
+  // Enter = Bank (only when allowed), Z = Zonk. It presses the real buttons.
+  function onKey(event) {
+    if (!container.isConnected) return window.removeEventListener("keydown", onKey); // this sheet was redrawn or left
+    if (event.ctrlKey || event.metaKey || event.altKey || event.defaultPrevented) return;
+    if (document.querySelector(".menu-layer, .dialog-layer, .spinner-layer")) return; // a menu, popup or the spinner has the keys
+    const k = event.key;
+    if (/^[0-9]$/.test(k)) press(k);
+    else if (k === "Backspace") { typed = typed.slice(0, -1); refresh(); }
+    else if (k === "Delete") { typed = ""; refresh(); }
+    else if (k === "+") { if (!plusButton.disabled) plusButton.click(); }
+    else if (k === "Enter") { if (!bankButton.disabled) bankButton.click(); }
+    else if (k === "z" || k === "Z") zonkButton.click();
+    else return;
+    event.preventDefault(); // handled: no double press of a focused button, no page scroll
+  }
+  window.addEventListener("keydown", onKey);
 }
