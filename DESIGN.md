@@ -10,7 +10,8 @@ Features still to build are in TODO.md.
 - Works in the browser on Android and iOS; installable (also on desktop via Chrome/Edge).
 - Single-page app: one index.html, JS swaps screens inside <div id="app">.
   Phones get a 480 px column; on desktop (min-width 1024px and min-height 600px)
-  screens with a desktop design widen to max 1440 px, centred.
+  screens with a desktop design (welcome, picker, Yamb sheet so far) widen to
+  max 1440 px, centred.
 - Deploy: .github/workflows/deploy.yml runs on every push to main: npm ci,
   npm run build (base "/dice-n-roll/" in vite.config.js), publishes dist/.
   Settings → Pages → Source must be "GitHub Actions" (with "Deploy from a branch",
@@ -151,6 +152,9 @@ Features still to build are in TODO.md.
 - The app always starts on welcome (refresh, reopen or killed app alike);
   "Continue game" shows when a save exists.
 - Welcome: sticker logo, "Score tracker for real dice", theme switch, Continue game, New game.
+- Welcome on desktop: the same screen centred and about 1.5× bigger (logo text 70 px,
+  die 99 px, tagline 20 px), logo and buttons together in the middle, buttons 420 px
+  wide, theme switch in the top-right corner. Canvas board 20A.
 - Picker: one card per game, all the same height. Tap the card to flip it to its
   rules (several can be flipped); a separate Play button opens setup. Coming back,
   all cards are unflipped.
@@ -287,3 +291,6 @@ Features still to build are in TODO.md.
 - Logo: sticker version with a dice trail and a yellow sparkle.
 - The app icon doubles as the game-menu button on scoresheets, the favicon and
   the home-screen icon.
+- Link preview: public/og-image.png (1200 × 630, canvas board 21C: the sticker logo
+  on the accent blue, "Keep score. Roll real dice.", the tagline, game chips).
+  Open Graph + twitter:card tags in index.html, with full https addresses.

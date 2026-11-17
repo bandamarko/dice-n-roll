@@ -1301,20 +1301,20 @@ h3 {
 
 :root,
 :root[data-theme="light"] {
-  --gold: #FFC24B;
-  --silver: #C9D3DD;
-  --bronze: #E3A869;
-  --on-medal: #0E2A3D;
-  --bar: #5B9BD9;
-  --bar-track: #D8E6F1;
-  --divider: #E3EEF7;
+  --gold: #ffc24b;
+  --silver: #c9d3dd;
+  --bronze: #e3a869;
+  --on-medal: #0e2a3d;
+  --bar: #5b9bd9;
+  --bar-track: #d8e6f1;
+  --divider: #e3eef7;
 }
 
 :root[data-theme="dark"] {
-  --on-medal: #0B1824;
-  --bar: #6FAEE8;
-  --bar-track: #1E3A57;
-  --divider: #24456A;
+  --on-medal: #0b1824;
+  --bar: #6faee8;
+  --bar-track: #1e3a57;
+  --divider: #24456a;
 }
 
 .end-screen {
@@ -1354,8 +1354,18 @@ h3 {
   border-radius: 50%;
   background: color-mix(in srgb, var(--on-accent) 8%, transparent);
 }
-.end-card::before { right: -30px; top: -30px; width: 140px; height: 140px; }
-.end-card::after { left: -40px; bottom: -50px; width: 160px; height: 160px; }
+.end-card::before {
+  right: -30px;
+  top: -30px;
+  width: 140px;
+  height: 140px;
+}
+.end-card::after {
+  left: -40px;
+  bottom: -50px;
+  width: 160px;
+  height: 160px;
+}
 
 .end-trophy {
   width: 84px;
@@ -1366,9 +1376,15 @@ h3 {
   background: color-mix(in srgb, var(--on-accent) 14%, transparent);
   color: var(--gold);
 }
-.end-trophy svg { width: 48px; height: 48px; }
+.end-trophy svg {
+  width: 48px;
+  height: 48px;
+}
 
-.end-title { margin: 0; font-size: 34px; }
+.end-title {
+  margin: 0;
+  font-size: 34px;
+}
 
 .end-score {
   font-family: "Bricolage Grotesque", sans-serif;
@@ -1377,7 +1393,10 @@ h3 {
   line-height: 1;
 }
 
-.end-line { font-size: 14px; color: var(--on-accent-soft); }
+.end-line {
+  font-size: 14px;
+  color: var(--on-accent-soft);
+}
 
 /* The ranking */
 .end-ranking {
@@ -1394,7 +1413,9 @@ h3 {
   gap: 12px;
   padding: 10px 0;
 }
-.end-row + .end-row { border-top: 1px solid var(--divider); }
+.end-row + .end-row {
+  border-top: 1px solid var(--divider);
+}
 
 .end-rank {
   flex: none;
@@ -1408,26 +1429,83 @@ h3 {
   color: var(--on-medal);
   background: var(--bg);
 }
-.rank-1 { background: var(--gold); }
-.rank-2 { background: var(--silver); }
-.rank-3 { background: var(--bronze); }
-.rank-4 { color: var(--ink); }
+.rank-1 {
+  background: var(--gold);
+}
+.rank-2 {
+  background: var(--silver);
+}
+.rank-3 {
+  background: var(--bronze);
+}
+.rank-4 {
+  color: var(--ink);
+}
 
-.end-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.end-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.end-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.end-right { display: flex; gap: 8px; align-items: baseline; flex: none; }
-.end-behind { font-size: 12px; color: var(--muted); }
-.end-total { font-weight: 700; }
-.is-winner .end-name { font-weight: 700; }
+.end-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.end-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.end-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.end-right {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex: none;
+}
+.end-behind {
+  font-size: 12px;
+  color: var(--muted);
+}
+.end-total {
+  font-weight: 700;
+}
+.is-winner .end-name {
+  font-weight: 700;
+}
 
-.end-bar { height: 6px; border-radius: 999px; background: var(--bar-track); overflow: hidden; }
-.end-bar-fill { height: 100%; border-radius: 999px; background: var(--bar); }
-.is-winner .end-bar-fill { background: var(--accent); }
+.end-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bar-track);
+  overflow: hidden;
+}
+.end-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--bar);
+}
+.is-winner .end-bar-fill {
+  background: var(--accent);
+}
 
 /* Buttons at the bottom */
-.end-actions { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-.end-actions-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; }
+.end-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.end-actions-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
+}
 
 .end-done {
   font: inherit;
@@ -1446,10 +1524,18 @@ h3 {
 }
 
 @keyframes trophy-pop {
-  0%   { transform: scale(0) rotate(-20deg); }
-  60%  { transform: scale(1.15) rotate(8deg); }
-  80%  { transform: scale(0.95) rotate(-3deg); }
-  100% { transform: none; }
+  0% {
+    transform: scale(0) rotate(-20deg);
+  }
+  60% {
+    transform: scale(1.15) rotate(8deg);
+  }
+  80% {
+    transform: scale(0.95) rotate(-3deg);
+  }
+  100% {
+    transform: none;
+  }
 }
 
 .confetti {
@@ -1462,7 +1548,9 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .is-celebrating .end-trophy { animation: none; }
+  .is-celebrating .end-trophy {
+    animation: none;
+  }
 }
 
 /* ---------- Starter spinner ---------- */
@@ -1576,7 +1664,9 @@ h3 {
 }
 
 /* While the spinner is up, nothing on the sheet may give away who starts */
-.is-revealing .game-title-turn { visibility: hidden; }
+.is-revealing .game-title-turn {
+  visibility: hidden;
+}
 
 .is-revealing .yamb-chip.is-current {
   background: var(--card);
@@ -1584,8 +1674,12 @@ h3 {
   font-weight: 400;
 }
 
-.is-revealing .zonk-player.is-current { box-shadow: none; }
-.is-revealing .zonk-player.is-current .zonk-player-name { font-weight: 400; }
+.is-revealing .zonk-player.is-current {
+  box-shadow: none;
+}
+.is-revealing .zonk-player.is-current .zonk-player-name {
+  font-weight: 400;
+}
 
 /* ---------- Setup ---------- */
 
@@ -2081,7 +2175,9 @@ h3 {
 
 /* Step 4: the cell being scored, and its row and column labels */
 .yamb-col-head.is-active,
-.yamb-row-head.is-active { background: var(--highlight); }
+.yamb-row-head.is-active {
+  background: var(--highlight);
+}
 
 .yamb-cell.is-selected {
   background: var(--accent);
@@ -2111,14 +2207,22 @@ h3 {
 }
 
 /* Above or below the tapped cell; placeNear() in yamb.js sets the distances */
-.yamb-panel.is-below { top: var(--panel-top); }
-.yamb-panel.is-above { bottom: var(--panel-bottom); }
+.yamb-panel.is-below {
+  top: var(--panel-top);
+}
+.yamb-panel.is-above {
+  bottom: var(--panel-bottom);
+}
 
 /* The line saying what the row scores: only on desktop, where there's room */
-.yamb-panel-rule { display: none; }
+.yamb-panel-rule {
+  display: none;
+}
 
 /* The mini sheets: only on desktop (phones have the chips) */
-.yamb-rail { display: none; }
+.yamb-rail {
+  display: none;
+}
 
 /* the arrow pointing at the cell; --arrow-x is set from JS to the cell's center */
 .yamb-panel::before {
@@ -2131,10 +2235,22 @@ h3 {
   transform: rotate(45deg);
 }
 
-.yamb-panel.is-below::before { top: -8px; border-left: 1px solid var(--panel-border); border-top: 1px solid var(--panel-border); }
-.yamb-panel.is-above::before { bottom: -8px; border-right: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+.yamb-panel.is-below::before {
+  top: -8px;
+  border-left: 1px solid var(--panel-border);
+  border-top: 1px solid var(--panel-border);
+}
+.yamb-panel.is-above::before {
+  bottom: -8px;
+  border-right: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--panel-border);
+}
 
-.yamb-panel-head { display: flex; align-items: center; gap: 12px; }
+.yamb-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
 .yamb-panel-icon {
   width: 44px;
@@ -2148,10 +2264,25 @@ h3 {
   justify-content: center;
 }
 
-.yamb-panel-icon .col-icon { width: 24px; height: 24px; }
-.yamb-panel-names { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.yamb-panel-title { font-family: "Bricolage Grotesque", sans-serif; font-size: 22px; font-weight: 700; }
-.yamb-panel-sub { font-size: 13px; color: var(--muted); }
+.yamb-panel-icon .col-icon {
+  width: 24px;
+  height: 24px;
+}
+.yamb-panel-names {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.yamb-panel-title {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+.yamb-panel-sub {
+  font-size: 13px;
+  color: var(--muted);
+}
 
 .yamb-panel-preview {
   font-family: "Bricolage Grotesque", sans-serif;
@@ -2161,17 +2292,48 @@ h3 {
   color: var(--accent-text);
 }
 
-.yamb-panel-body { display: flex; flex-direction: column; gap: 10px; }
-.yamb-choices { display: flex; flex-direction: column; gap: 8px; }
-.yamb-panel-label { font-size: 14px; color: var(--muted); }
-.yamb-panel-note { margin: 0; font-size: 14px; line-height: 1.5; color: var(--body); }
-.yamb-panel-hint { margin: -4px 0 0; font-size: 13px; color: var(--danger); }
-.yamb-panel-hint:empty { display: none; }
+.yamb-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.yamb-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yamb-panel-label {
+  font-size: 14px;
+  color: var(--muted);
+}
+.yamb-panel-note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--body);
+}
+.yamb-panel-hint {
+  margin: -4px 0 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+.yamb-panel-hint:empty {
+  display: none;
+}
 
-.yamb-choice-row { display: grid; gap: 6px; }
-.yamb-choice-row.is-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.yamb-choice-row.is-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.yamb-choice-row.is-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.yamb-choice-row {
+  display: grid;
+  gap: 6px;
+}
+.yamb-choice-row.is-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.yamb-choice-row.is-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.yamb-choice-row.is-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
 
 .yamb-choice {
   height: 50px;
@@ -2188,9 +2350,19 @@ h3 {
   cursor: pointer;
 }
 
-.yamb-choice.is-big { height: 58px; font-size: 26px; font-weight: 700; }
-.yamb-choice.is-die .die-icon { width: 30px; height: 30px; }
-.yamb-choice[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.yamb-choice.is-big {
+  height: 58px;
+  font-size: 26px;
+  font-weight: 700;
+}
+.yamb-choice.is-die .die-icon {
+  width: 30px;
+  height: 30px;
+}
+.yamb-choice[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
 
 .yamb-numpad {
   display: grid;
@@ -2229,19 +2401,43 @@ h3 {
   cursor: pointer;
 }
 
-.yamb-cross { border: 1.5px solid var(--ink); background: none; color: var(--ink); font-size: 22px; }
-.yamb-cancel { border: none; background: var(--bg); color: var(--ink); font-size: 16px; }
-.yamb-enter { border: none; background: var(--accent); color: var(--on-accent); font-size: 17px; }
-.yamb-enter:disabled { opacity: 0.4; cursor: default; }
+.yamb-cross {
+  border: 1.5px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  font-size: 22px;
+}
+.yamb-cancel {
+  border: none;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+}
+.yamb-enter {
+  border: none;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 17px;
+}
+.yamb-enter:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 
 /* Step 5: the tip notice and the tip line in the bottom bar */
-.yamb-layer.is-dimmed { z-index: 6; overflow: hidden; }
+.yamb-layer.is-dimmed {
+  z-index: 6;
+  overflow: hidden;
+}
 
 /* The ring around the tip cell; its huge shadow dims everything else */
 .yamb-spotlight {
   position: absolute;
   border-radius: 8px;
-  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent), 0 0 0 9999px var(--scrim);
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 5px var(--accent),
+    0 0 0 9999px var(--scrim);
   pointer-events: none;
 }
 
@@ -2255,10 +2451,26 @@ h3 {
 }
 
 .yamb-notice-row .row-icon,
-.yamb-notice-row .die-icon { width: 28px; height: 28px; }
-.yamb-notice-name { font-family: "Bricolage Grotesque", sans-serif; font-size: 20px; font-weight: 700; }
-.yamb-notice-col { margin-left: auto; font-size: 13px; color: var(--muted); }
-.yamb-notice-text { margin: 0; font-size: 15px; line-height: 1.5; color: var(--body); }
+.yamb-notice-row .die-icon {
+  width: 28px;
+  height: 28px;
+}
+.yamb-notice-name {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.yamb-notice-col {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--muted);
+}
+.yamb-notice-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--body);
+}
 
 .yamb-bar-tip {
   min-height: 44px;
@@ -2275,7 +2487,10 @@ h3 {
   cursor: pointer;
 }
 
-.yamb-bar-tip .col-icon { width: 18px; height: 18px; }
+.yamb-bar-tip .col-icon {
+  width: 18px;
+  height: 18px;
+}
 
 /* The entry waiting for "Confirm turn" */
 .yamb-cell.is-pending {
@@ -2583,6 +2798,107 @@ h3 {
     width: 420px;
   }
 
+  /* ----- Welcome: the same screen, centred and about 1.5× bigger ----- */
+
+  #app:has(> .welcome) {
+    max-width: 1440px;
+  }
+  .welcome {
+    padding: 40px;
+    justify-content: center; /* logo and buttons together in the middle, not pushed apart */
+    align-items: center;
+    gap: 64px;
+  }
+  .welcome .theme-switch {
+    top: 32px;
+    right: 40px;
+  }
+  .welcome-hero {
+    padding-top: 0;
+    gap: 34px;
+  }
+  .logo {
+    padding: 36px 34px 16px 32px;
+    border-width: 3px;
+    border-radius: 32px;
+    box-shadow: 10px 10px 0 var(--accent);
+  }
+  .logo-text {
+    font-size: 70px;
+    letter-spacing: -1.5px;
+  }
+  .logo-die {
+    width: 99px;
+    height: 85px;
+    margin: 0 -8px 12px -40px;
+  }
+  .welcome-tagline {
+    font-size: 20px;
+  }
+  .welcome-actions {
+    width: 420px;
+  }
+
+  /* ----- Picker: the game cards side by side ----- */
+
+  #app:has(> .picker) {
+    max-width: 1440px;
+  }
+  .picker {
+    min-height: 100dvh;
+    padding: 16px 32px 40px;
+  }
+  .picker > * {
+    width: 100%;
+    max-width: 1200px; /* header and cards share the same edges */
+    margin-inline: auto;
+  }
+  .card-list {
+    flex: 1;
+    align-content: center; /* the row of cards sits in the middle of the screen */
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(260px, 1fr)
+    ); /* a 4th game still fits */
+    grid-auto-rows: auto; /* one row as tall as the tallest card, not the whole screen */
+    gap: 20px;
+    padding-bottom: 56px; /* balances the header, so the cards look centred */
+  }
+  .game-card-inner {
+    min-height: 340px;
+  }
+  .game-card-face {
+    padding: 26px;
+    border-radius: 24px;
+    gap: 14px;
+  }
+  .card-title {
+    font-size: 30px;
+  }
+  .card-summary {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .card-rules {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .card-play {
+    height: 48px;
+    padding: 0 22px;
+    font-size: 16px;
+  }
+
+  /* With a mouse: the card you point at gets an outline */
+  @media (hover: hover) {
+    .game-card-front:hover {
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .game-card-back:hover {
+      box-shadow: 0 0 0 2px var(--accent-text);
+    }
+  }
+
   /* ----- Yamb sheet: mini sheets | the sheet | score panel ----- */
 
   .game-screen:has(.yamb-grid) {
@@ -2743,7 +3059,11 @@ h3 {
     gap: 3px;
   }
   .game-body:has(.yamb-peek-bar) .yamb-grid {
-    --row: clamp(24px, calc((100dvh - 236px) / 16), 40px); /* room for the peek bar above */
+    --row: clamp(
+      24px,
+      calc((100dvh - 236px) / 16),
+      40px
+    ); /* room for the peek bar above */
   }
   .yamb-label {
     position: static;
@@ -2819,7 +3139,9 @@ h3 {
     left: auto;
     right: 24px;
     width: 330px;
-    max-height: calc(100% - 68px - 24px - 150px); /* leaves Total and Confirm visible */
+    max-height: calc(
+      100% - 68px - 24px - 150px
+    ); /* leaves Total and Confirm visible */
     overflow-y: auto;
     padding: 18px;
     border-radius: 20px 20px 0 0;

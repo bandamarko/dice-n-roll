@@ -32,6 +32,9 @@ function cardTitle(game, text, className) {
   return title;
 }
 
+// "Click" with a mouse, "Tap" on a touch screen
+const verb = () => (matchMedia("(hover: hover)").matches ? "Click" : "Tap");
+
 function gameCard(game) {
   const players = `${game.minPlayers}–${game.maxPlayers} players · ${game.dice} dice`;
   const card = el("section", "game-card");
@@ -45,7 +48,7 @@ function gameCard(game) {
   flipToRules.setAttribute("aria-label", `Show ${game.name} rules`);
   const hint = el("span", "card-hint");
   hint.innerHTML = FLIP;
-  hint.append("Tap for rules");
+  hint.append(`${verb()} for rules`);
   flipToRules.append(cardTitle(game, game.name, "card-title"), el("span", "card-summary", game.summary), hint);
   const frontBottom = el("div", "card-bottom");
   frontBottom.append(el("span", "card-players", players), playButton(game));
@@ -55,7 +58,7 @@ function gameCard(game) {
   const backFace = el("div", "game-card-face game-card-back");
   const flipToFront = el("button", "card-flip");
   flipToFront.type = "button";
-  flipToFront.setAttribute("aria-label", `${game.name} rules, tap to flip back`);
+    flipToFront.setAttribute("aria-label", `${game.name} rules, ${verb().toLowerCase()} to flip back`);
   const head = el("span", "card-rules-head");
   const flipBack = el("span", "card-hint");
   flipBack.innerHTML = FLIP;
