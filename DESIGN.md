@@ -199,6 +199,12 @@ Features still to build are in TODO.md.
   field. On a scoresheet Ctrl+Z = Undo, Ctrl+Y / Ctrl+Shift+Z = Redo (Cmd on Mac);
   they press the real buttons and are ignored while a menu, popup or score panel is open.
 - Focus ring: :focus-visible gets a 2 px accent outline (keyboard only, not on taps).
+- Short phone screens (≤ 760 px tall): Zonk's numpad keys, action buttons and player
+  cards shrink (clamp on dvh) so 1–8 players fit without scrolling.
+- Desktop setup is exactly the screen's height; the rules pages and the name list
+  scroll inside their cards.
+- Tap targets on phones are at least 40 px (rules tabs, peek bar); the Yamb rows
+  shrink a little while the peek bar is showing.
 
 ### End screen
 

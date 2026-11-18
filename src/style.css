@@ -930,6 +930,21 @@ h3 {
   color: var(--on-accent);
 }
 
+/* Short phone screens (a browser's own bars take room): the numpad, buttons and
+   player cards shrink a little, so 8 players still fit without scrolling */
+@media (max-width: 1023px) and (max-height: 760px) {
+  .numpad-key {
+    height: clamp(42px, 6.5dvh, 54px);
+  }
+  .zonk-action {
+    height: clamp(46px, 7dvh, 56px);
+  }
+  .zonk-player {
+    padding: 8px 12px;
+    gap: 4px;
+  }
+}
+
 /* Desktop-only parts of the Zonk sheet; on phones the panel doesn't affect the layout */
 .zonk-order-title,
 .zonk-player-tag,
@@ -1090,7 +1105,7 @@ h3 {
 .rules-tab {
   flex: 1;
   min-width: 0;
-  height: 34px;
+  height: 40px;
   border: none;
   border-radius: 10px;
   background: none;
@@ -2099,7 +2114,7 @@ kbd {
 }
 
 .yamb-peek-bar {
-  height: 36px;
+  height: 40px;
   padding: 0 12px;
   border: none;
   border-radius: 10px;
@@ -2126,6 +2141,10 @@ kbd {
   grid-template-columns: 30px repeat(var(--columns), minmax(0, 1fr));
   grid-auto-rows: var(--row);
   gap: 2px;
+}
+
+.game-body:has(.yamb-peek-bar) .yamb-grid {
+  --row: clamp(22px, calc((100dvh - 320px) / 17), 36px); /* room for the peek bar above */
 }
 
 .yamb-corner {
@@ -2994,6 +3013,7 @@ kbd {
     max-width: 1440px;
   }
   .setup {
+    height: 100dvh;
     padding: 16px 32px 24px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 460px;
@@ -3033,6 +3053,13 @@ kbd {
   }
   .setup .name-list {
     gap: 4px;
+    min-height: 0;
+    overflow-y: auto; /* 8 players on a short screen: the names scroll */
+    scrollbar-width: thin;
+    scrollbar-color: var(--highlight) transparent;
+  }
+  .setup-card:has(.name-list) {
+    min-height: 0; /* lets the players card shrink to the room there is */
   }
   /* inside a card the tabs and Back button need the page colour to stand out */
   .setup-rules .rules-tab[aria-selected="true"] {
