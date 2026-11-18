@@ -1,5 +1,25 @@
-const STORAGE_KEY = "dice-n-fun:current-game";
+const STORAGE_KEY = "dice-n-roll:current-game";
 const SAVE_VERSION = 1;
+
+// The app used to be called Dice'n'Fun. Values saved under the old names are moved
+// to the new ones once, unchanged, so nobody loses their game or theme.
+const OLD_KEYS = {
+  "dice-n-fun:current-game": STORAGE_KEY,
+  "dice-n-fun:theme": "dice-n-roll:theme",
+};
+
+export function moveOldSaves() {
+  try {
+    for (const [oldKey, newKey] of Object.entries(OLD_KEYS)) {
+      const value = localStorage.getItem(oldKey);
+      if (value === null) continue;
+      if (localStorage.getItem(newKey) === null) localStorage.setItem(newKey, value);
+      localStorage.removeItem(oldKey);
+    }
+  } catch (error) {
+    console.error("Could not move old saves:", error);
+  }
+}
 
 export function saveGame(history) {
   const data = {
@@ -17,7 +37,7 @@ export function saveGame(history) {
 export function loadGame() {
   try {
     const text = localStorage.getItem(STORAGE_KEY);
-    if (!text) return null;                          // nothing saved yet
+    if (!text) return null;
 
     const data = JSON.parse(text);
     if (data.version !== SAVE_VERSION) return null;  // old format: start fresh for now
@@ -35,4 +55,4 @@ export function clearGame() {
   } catch (error) {
     console.error("Could not clear the saved game:", error);
   }
-}
+}

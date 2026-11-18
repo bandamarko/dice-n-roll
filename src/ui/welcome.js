@@ -4,7 +4,7 @@
 import { getGame } from "../games/index.js";
 import { loadGame } from "../storage/storage.js";
 import { go } from "./router.js";
-import { el } from "./dom.js";
+import { el, button } from "./dom.js";
 import { themeSwitchButton } from "./themeSwitch.js";
 import { LOGO_DIE } from "./icons.js";
 
@@ -44,17 +44,13 @@ export function showWelcome(root) {
   const actions = el("div", "welcome-actions");
   const line = savedGameLine();
   if (line) {
-    const resume = el("button", "button-primary welcome-continue");
-    resume.type = "button";
+    const resume = button("button-primary welcome-continue", { onClick: () => go("game", {}, { fresh: true }) });
     resume.append(el("span", "welcome-continue-title", "Continue game"), el("span", "welcome-continue-line", line));
-    resume.addEventListener("click", () => go("game", {}, { fresh: true }));
     actions.append(resume);
   }
-  const fresh = el("button", "button-outline", "New game");
-  fresh.type = "button";
-  fresh.addEventListener("click", () => go("picker"));
+  const fresh = button("button-outline", { text: "New game", onClick: () => go("picker") });
   actions.append(fresh);
 
   screen.append(themeSwitchButton(), hero, actions);
   root.append(screen);
-}
+}

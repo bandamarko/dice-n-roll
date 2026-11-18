@@ -35,7 +35,6 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
-  const url = new URL(request.url);
 
   // Opening the app: answer from the saved copy, and look for a new version in the background
   if (request.mode === "navigate" && request.url.startsWith(ROOT)) {
@@ -72,12 +71,10 @@ async function savedFirst(request, cacheName) {
   const saved = await cache.match(request);
   if (saved) return saved;
   const response = await fetch(request);
-  // "opaque" = a file from another site (the fonts); it can be saved but not inspected
-  if (response.ok || response.type === "opaque") cache.put(request, response.clone());
+  if (response.ok) cache.put(request, response.clone());
   return response;
 }
 
-// The files the saved copy of the page points to
 async function savedFiles() {
   const cache = await caches.open(APP_CACHE);
   const page = await cache.match(ROOT);
@@ -122,4 +119,4 @@ async function downloadApp() {
 function filesOf(html) {
   const assets = [...html.matchAll(/(?:src|href)="([^"]*assets\/[^"]+)"/g)].map((match) => new URL(match[1], ROOT).href);
   return [...assets, ...EXTRA_FILES.map((file) => new URL(file, ROOT).href)];
-}
+}

@@ -123,13 +123,15 @@ Features still to build are in TODO.md.
 
 ## Storage
 
-- localStorage key "dice-n-fun:current-game", SAVE_VERSION 1 (keys kept from the
-  old name so existing saves survive).
+- localStorage key "dice-n-roll:current-game", SAVE_VERSION 1.
+- Older saves under "dice-n-fun:…" (the old name) are moved once, unchanged, to
+  the new keys on start (moveOldSaves in storage.js).
 - Saves { version, current, undoStack } after every move; redo isn't saved.
 - Missing, broken or old-version save → start fresh.
 - A finished game stays saved while its end screen is open (a refresh still shows
   the results); Done, Play again or back clears it.
-- Theme stored under "dice-n-fun:theme".
+- Theme stored under "dice-n-roll:theme" (index.html also reads the old
+  "dice-n-fun:theme" on that first start, so dark mode doesn't flash).
 - The service worker's copy of the app is separate: updating the app never touches saves.
 
 ## Offline and updates (public/sw.js)

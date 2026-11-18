@@ -93,7 +93,7 @@ export function openGameMenu(root, game) {
     panel.replaceChildren(head, facts, rulesPager(game, { onDone: dismiss }));
     backButton.focus();
   }
-  
+
+  root.append(layer); // on the page first, so showMain() can focus Rules
   showMain();
-  root.append(layer);
-}
+}

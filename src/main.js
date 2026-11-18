@@ -8,6 +8,7 @@ import { showSetup } from "./ui/setup.js";
 import { showGame } from "./ui/game.js";
 import { showEnd } from "./ui/end.js";
 import { startUpdates } from "./ui/update.js";
+import { moveOldSaves } from "./storage/storage.js";
 
 defineScreens({
   welcome: showWelcome,
@@ -17,6 +18,7 @@ defineScreens({
   end: showEnd,
 });
 
+moveOldSaves();
 startTheme();
 startRouter(document.querySelector("#app"), "welcome");
 
@@ -27,4 +29,4 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
   startUpdates();
 }
 
-document.addEventListener("gesturestart", (event) => event.preventDefault());
+document.addEventListener("gesturestart", (event) => event.preventDefault());

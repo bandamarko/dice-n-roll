@@ -1,7 +1,7 @@
 // ui/rules.js
 // The rules as pages you swipe through (or pick with the tabs, or step with Back / Next).
-// rulesPager(game, { onDone }) returns one element, so the game menu uses it now
-// and the desktop setup screen can use it later.
+// rulesPager(game, { onDone }) returns one element, used by the game menu and the
+// desktop setup screen.
 //
 // Swiping is the browser's own sideways scrolling: the pages sit in a strip with
 // CSS scroll-snap, so it follows the finger and always stops on a whole page.
@@ -272,7 +272,6 @@ export function rulesPager(game, { onDone } = {}) {
 
   const pager = el("div", "rules-pager");
 
-  // Tabs: jump straight to a page
   const tabs = el("div", "rules-tabs");
   tabs.setAttribute("role", "tablist");
   const tabButtons = pages.map((page, i) => {
@@ -282,7 +281,6 @@ export function rulesPager(game, { onDone } = {}) {
     return tab;
   });
 
-  // The strip of pages; scroll-snap (CSS) makes every swipe stop on a whole page
   const strip = el("div", "rules-strip");
     strip.tabIndex = -1; // not a Tab stop: the tabs are (Chrome would add scrollable boxes)
   pages.forEach((page) => {
@@ -294,7 +292,6 @@ export function rulesPager(game, { onDone } = {}) {
     strip.append(section);
   });
 
-  // Back / count / Next (Done on the last page)
   const nav = el("div", "rules-nav");
   const prev = button("rules-prev", { icon: BACK, text: "Back", onClick: () => goTo(current - 1) });
   const count = el("span", "rules-count");
@@ -312,7 +309,6 @@ export function rulesPager(game, { onDone } = {}) {
     show(page); // update right away; the scroll listener agrees once the slide ends
   }
 
-  // Tabs, count and buttons follow whichever page is showing
   function show(page) {
     current = page;
     tabButtons.forEach((tab, i) => {
@@ -327,7 +323,6 @@ export function rulesPager(game, { onDone } = {}) {
   }
 
   // A swipe moves the strip itself; read the page from how far it has scrolled
-    // A swipe moves the strip itself; read the page from how far it has scrolled
   let frame = 0;
   strip.addEventListener("scroll", () => {
     cancelAnimationFrame(frame);
@@ -357,4 +352,4 @@ export function rulesPager(game, { onDone } = {}) {
 
   show(0);
   return pager;
-}
+}

@@ -50,7 +50,6 @@ export function burstConfetti(container, origin, colors) {
   let last = start;
 
   function frame(now) {
-    // Leaving the screen removes the canvas; stop drawing then
     if (!canvas.isConnected) return;
     const elapsed = now - start;
     if (elapsed >= DURATION) return canvas.remove();
@@ -81,4 +80,4 @@ export function burstConfetti(container, origin, colors) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-}
+}

@@ -8,6 +8,7 @@ import { createHistory } from "../state/history.js";
 import { saveGame } from "../storage/storage.js";
 import { go, back } from "./router.js";
 import { showDialog } from "./dialog.js";
+import { el, button } from "./dom.js";
 import { appIcon, BACK, GRIP, CLOSE } from "./icons.js";
 import { rulesPager } from "./rules.js";
 
@@ -24,31 +25,18 @@ export function prepareSetup(gameId, players, options) {
   if (options) optionsByGame[gameId] = { ...options };
 }
 
-function el(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
-
 export function showSetup(root, { gameId }) {
   const game = getGame(gameId);
   const options = (optionsByGame[gameId] ??= { ...game.defaultOptions });
 
   const screen = el("main", "setup");
 
-  // Header
   const header = el("header", "screen-header");
-  const backButton = el("button", "icon-button");
-  backButton.type = "button";
-  backButton.setAttribute("aria-label", "Back");
-  backButton.innerHTML = BACK;
-  backButton.addEventListener("click", back);
+  const backButton = button("icon-button", { icon: BACK, label: "Back", onClick: back });
   const logo = el("span", "header-logo");
   logo.innerHTML = appIcon();
   header.append(backButton, el("h1", "screen-title", game.name), logo);
 
-  // Players
   const players = el("section", "setup-card");
   const playersHead = el("div", "setup-card-head");
   const count = el("span", "setup-count");
@@ -84,18 +72,15 @@ export function showSetup(root, { gameId }) {
 
   function nameRow(name, index) {
     const row = el("li", "name-row");
-    const grip = el("button", "name-grip");
-    grip.type = "button";
-    grip.innerHTML = GRIP;
-    grip.setAttribute("aria-label", `Move ${name}. Drag, or use the arrow keys`);
-    const remove = el("button", "name-remove");
-    remove.type = "button";
-    remove.innerHTML = CLOSE;
-    remove.setAttribute("aria-label", `Remove ${name}`);
-    remove.addEventListener("click", () => {
-      names = names.filter((_, i) => i !== index);
-      renderNames();
-      input.focus();
+    const grip = button("name-grip", { icon: GRIP, label: `Move ${name}. Drag, or use the arrow keys` });
+    const remove = button("name-remove", {
+      icon: CLOSE,
+      label: `Remove ${name}`,
+      onClick: () => {
+        names = names.filter((_, i) => i !== index);
+        renderNames();
+        input.focus();
+      },
     });
 
     // Keyboard: arrow keys move the player one place
@@ -182,10 +167,8 @@ export function showSetup(root, { gameId }) {
   // Game options (only Zonk has any for now)
   if (gameId === "zonk") screen.append(zonkOptions(options));
 
-  // Start
   const footer = el("div", "setup-footer");
-  const start = el("button", "button-primary setup-start", "Start game");
-  start.type = "button";
+  const start = button("button-primary setup-start", { text: "Start game" });
   start.addEventListener("click", () => {
     if (names.length < game.minPlayers || names.length > game.maxPlayers) {
       const range = game.minPlayers === game.maxPlayers ? `${game.minPlayers}` : `${game.minPlayers}–${game.maxPlayers}`;
@@ -232,13 +215,13 @@ function zonkOptions(options) {
 
   const isCustom = () => !ZONK_TARGETS.includes(options.target);
   const buttons = [...ZONK_TARGETS, "Custom"].map((value) => {
-    const chip = el("button", "chip", value === "Custom" ? "Custom" : value.toLocaleString("en-US"));
-    chip.type = "button";
+    const chip = button("chip", { text: value === "Custom" ? "Custom" : value.toLocaleString("en-US") });
     chip.addEventListener("click", () => {
       if (value === "Custom") {
         custom.hidden = false;
+        if (!custom.value) custom.value = String(options.target); // starts from the current target, so what you see is what's used
+        options.target = customTarget(custom.value) ?? options.target;
         custom.focus();
-        if (Number(custom.value) >= 1000) options.target = Number(custom.value);
       } else {
         options.target = value;
         custom.hidden = true;
@@ -255,9 +238,18 @@ function zonkOptions(options) {
     }
   }
 
+  // Zonk scores go in steps of 50, so the target does too; out of range is ignored
+  const customTarget = (text) => {
+    const value = Math.round(Number(text) / 50) * 50;
+    return value >= 1000 && value <= 100000 ? value : null;
+  };
   custom.addEventListener("input", () => {
-    const value = Math.round(Number(custom.value));
-    if (value >= 1000 && value <= 100000) options.target = value;
+    const value = customTarget(custom.value);
+    if (value !== null) options.target = value;
+  });
+  // Leaving the field shows the target that will be used (rounded, or the last valid one)
+  custom.addEventListener("change", () => {
+    custom.value = String(options.target);
   });
 
   custom.hidden = !isCustom();
@@ -266,4 +258,4 @@ function zonkOptions(options) {
   card.append(chips, custom);
   refresh();
   return card;
-}
+}

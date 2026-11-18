@@ -1,10 +1,11 @@
 // ui/sheets/yamb.js
 // Yamb and Flash Yamb scoresheet:
-// - player chips (tap one to peek at that player's sheet, read-only)
+// - player chips on phones, mini sheets in turn order on desktop (pick one to peek, read-only)
 // - the grid with icon labels, sums and open cells, plus the bottom bar
-// - the floating score panel next to the tapped cell
+// - the score panel for the chosen cell (next to it on phones, in the right column on desktop)
 // - a pending entry that only counts after "Confirm turn"
 // - the tip notice when the previous player announced
+// - keyboard: arrows between open cells, Enter, and the score panel's keys
 
 import { ROWS, columnSums, bestValue } from "../../games/yamb.js";
 import { openOverlay } from "../router.js";
@@ -65,7 +66,6 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     }
 
     // The sheet as it would be with the pending entry, for the sums and the total preview
-    // The sheet as it would be with the pending entry, for the sums and the total preview
     function previewSheet() {
         return pending ? game.applyEntry(sheet, currentPlayer, pending).sheet : sheet;
     }
@@ -83,13 +83,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     function chips() {
         const row = el("div", "yamb-chips");
         players.forEach((name, i) => {
-            const chip = button("yamb-chip", {
-                onClick: () => {
-                    if (i === viewed) return;
-                    if (i === currentPlayer) return closePeek?.();
-                    peek(i);
-                },
-            });
+            const chip = button("yamb-chip", { onClick: () => view(i) });
             if (i === currentPlayer) chip.classList.add("is-current");
             if (i === viewed) chip.setAttribute("aria-pressed", "true");
             chip.setAttribute("aria-label", `${name}, ${totals[i]} points${i === currentPlayer ? ", playing now" : ", tap to see their sheet"}`);
@@ -114,13 +108,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     }
 
     function miniSheet(i, tag) {
-        const card = button("yamb-mini", {
-            onClick: () => {
-                if (i === viewed) return;
-                if (i === currentPlayer) return closePeek?.();
-                peek(i);
-            },
-        });
+        const card = button("yamb-mini", { onClick: () => view(i) });
         if (i === currentPlayer) card.classList.add("is-current");
         if (i === viewed) card.setAttribute("aria-pressed", "true");
         card.setAttribute("aria-label", `${players[i]}, ${totals[i]} points${i === currentPlayer ? ", playing now" : ", click to see their sheet"}`);
@@ -143,6 +131,13 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         card.append(top, map);
         return card;
     }
+    // A chip or mini sheet was picked: your own sheet ends the peek, anyone else's starts one
+    function view(i) {
+        if (i === viewed) return;
+        if (i === currentPlayer) return closePeek?.();
+        peek(i);
+    }
+
     // Peeking is an overlay as far as the router knows, so the back button ends it
     function peek(i) {
         if (!closePeek) {
@@ -172,13 +167,12 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         table.setAttribute("aria-label", `${players[viewed]}'s scoresheet`);
         table.style.setProperty("--columns", game.columns.length); // data: 9 for Yamb, 6 for Flash Yamb
 
-        // Header: empty corner, then one icon per column
         table.append(el("span", "yamb-corner"));
         for (const column of game.columns) {
             const head = el("span", "yamb-col-head");
             head.dataset.column = column;
             head.innerHTML = COLUMN_ICONS[column];
-            head.append(el("span", "yamb-label", COLUMN_NAMES[column])); // hidden on phones, for desktop later
+            head.append(el("span", "yamb-label", COLUMN_NAMES[column]));
             head.title = COLUMN_NAMES[column];
             table.append(head);
         }
@@ -254,7 +248,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             again.append(`Tip from ${announcer()}: ${ROW_NAMES[tip]}`);
             bar.append(again);
         } else {
-            const verb = matchMedia("(hover: hover)").matches ? "Click" : "Tap"; // mouse or finger
+            const verb = matchMedia("(hover: hover)").matches ? "Click" : "Tap";
             bar.append(el("span", "yamb-bar-hint", mine ? `${verb} an outlined cell to score` : "Read-only"));
         }
         const total = el("span", "yamb-bar-total");
@@ -329,7 +323,6 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             return pick.a ? times * pick.a + bonus : null;
         }
 
-        // Head: column icon, row name, live preview
         const head = el("div", "yamb-panel-head");
         const tile = el("span", "yamb-panel-icon");
         tile.innerHTML = COLUMN_ICONS[column];
@@ -445,6 +438,52 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
         (panel.querySelector(".yamb-choice, .yamb-key") ?? enter).focus();
     }
 
+    // ---------- Keyboard (desktop) ----------
+    // Arrows jump between open cells, Enter opens one; in the score panel the keys pick
+    // the value (panelKey); with an entry pending, Enter plays it (Confirm turn).
+    function onKey(event) {
+        if (!container.isConnected) return window.removeEventListener("keydown", onKey); // this sheet was redrawn or left
+        if (event.ctrlKey || event.metaKey || event.altKey || event.defaultPrevented) return;
+        if (document.querySelector(".menu-layer, .dialog-layer, .yamb-layer.is-dimmed")) return; // a menu, popup or the tip notice has the keys
+        const arrow = ARROWS[event.key];
+
+        if (closeInput && !arrow) {
+            if (panelKey(event)) event.preventDefault(); // handled: no page scroll, no double click
+            return;
+        }
+        if (arrow) {
+            event.preventDefault();
+            const from = inputCell ?? document.activeElement;
+            closeInput?.(); // moving on from a cell closes its panel
+            moveFocus(from, arrow);
+        } else if (event.key === "Enter" && pending && !event.target.closest?.("button")) {
+            event.preventDefault();
+            play(pending); // Enter, Enter: the first one entered the value, this one confirms the turn
+        }
+    }
+    window.addEventListener("keydown", onKey);
+
+    // Focus the nearest open cell in the arrow's direction, preferring the same row / column
+    function moveFocus(from, [dx, dy]) {
+        const cells = [...container.querySelectorAll(".yamb-cell.is-open, .yamb-cell.is-pending")];
+        if (!cells.length) return;
+        if (!cells.includes(from)) return (container.querySelector(".yamb-cell.is-pending") ?? cells[0]).focus();
+        const place = (cell) => [game.columns.indexOf(cell.dataset.column), LAYOUT.indexOf(cell.dataset.row)];
+        const [c, r] = place(from);
+        let best = null;
+        let bestScore = Infinity;
+        for (const cell of cells) {
+            const [x, y] = place(cell);
+            const ahead = dx ? (x - c) * dx : (y - r) * dy;     // steps in the arrow's direction
+            const aside = dx ? Math.abs(y - r) : Math.abs(x - c); // steps off to the side
+            if (ahead <= 0) continue;
+            const score = ahead + aside * 3;
+            if (score < bestScore) { bestScore = score; best = cell; }
+        }
+        best?.focus();
+    }
+
+
     function sheetAllows(column, key, value) {
         return game.canEnter(sheet, currentPlayer, { column, row: key, value });
     }
@@ -493,4 +532,4 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     draw();
     // Every time a tip turn's sheet is drawn (new turn, undo, redo, Continue), show the notice
     if (sheet.pendingTip) showTipNotice();
-}
+}

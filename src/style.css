@@ -61,7 +61,6 @@
   --accent-text: #1f6fc2;
   --sum: #cfe6f7;
   --locked: #d8e6f1;
-  --tint: #f2f8fd;
   --highlight: #cfe6f7;
   --panel-border: #9cc3e6;
   --danger: #c0392b;
@@ -81,7 +80,6 @@
   --accent-text: #6faee8;
   --sum: #1c3550;
   --locked: #0f2030;
-  --tint: #1e3a57;
   --highlight: #24456a;
   --panel-border: #3a5a7a;
   --danger: #e0604f;
@@ -742,10 +740,6 @@ h3 {
   gap: 10px;
 }
 
-.game-placeholder {
-  text-align: center;
-  color: var(--muted);
-}
 
 /* ---------- Zonk sheet ---------- */
 
@@ -967,7 +961,6 @@ h3 {
   gap: 2px;
 }
 
-/* the little arrow pointing at the logo */
 .menu-panel::before {
   content: "";
   position: absolute;
@@ -1068,25 +1061,7 @@ h3 {
   color: var(--muted);
 }
 
-.menu-rules-list {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--body);
-}
 
-.menu-rules-tip {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg);
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-size: 13px;
-  font-weight: 600;
-}
 
 /* ---------- Rules pages (ui/rules.js) ---------- */
 
@@ -1098,7 +1073,6 @@ h3 {
   gap: 10px;
 }
 
-/* Tabs: jump straight to a page */
 .rules-tabs {
   display: flex;
   gap: 4px;
@@ -2192,7 +2166,7 @@ kbd {
   fill: var(--ink);
 }
 
-/* Names exist for screen readers and the future desktop layout; phones show only icons */
+/* Names exist for screen readers and the desktop layout; phones show only icons */
 .yamb-label {
   position: absolute;
   width: 1px;
@@ -2281,7 +2255,7 @@ kbd {
   font-weight: 700;
 }
 
-/* Step 4: the cell being scored, and its row and column labels */
+/* The cell being scored, and its row and column labels */
 .yamb-col-head.is-active,
 .yamb-row-head.is-active {
   background: var(--highlight);
@@ -2293,7 +2267,7 @@ kbd {
   box-shadow: none;
 }
 
-/* Floating panels: the score input (and the tip notice in step 5) */
+/* Floating panels: the score input and the tip notice */
 .yamb-layer {
   position: absolute;
   inset: 0;
@@ -2532,7 +2506,7 @@ kbd {
   cursor: default;
 }
 
-/* Step 5: the tip notice and the tip line in the bottom bar */
+/* The tip notice and the tip line in the bottom bar */
 .yamb-layer.is-dimmed {
   z-index: 6;
   overflow: hidden;
@@ -2744,11 +2718,6 @@ kbd {
   inherits: true;
   initial-value: #d8e6f1;
 }
-@property --tint {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #f2f8fd;
-}
 @property --highlight {
   syntax: "<color>";
   inherits: true;
@@ -2912,7 +2881,6 @@ kbd {
     --accent-text 0.3s ease,
     --sum 0.3s ease,
     --locked 0.3s ease,
-    --tint 0.3s ease,
     --highlight 0.3s ease,
     --panel-border 0.3s ease,
     --danger 0.3s ease,
@@ -3591,7 +3559,8 @@ kbd {
   /* Filled buttons: lighter + glow in their own colour */
   :is(
       .button-primary,
-      .update-reload .card-play,
+      .update-reload,
+      .card-play,
       .name-add,
       .rules-next,
       .dialog-primary,
@@ -3608,7 +3577,8 @@ kbd {
   /* Everything else: a blue tint + glow */
   :is(
       .button-outline,
-      .update-close .icon-button,
+      .update-close,
+      .icon-button,
       .game-menu-button,
       .menu-item,
       .numpad-key,

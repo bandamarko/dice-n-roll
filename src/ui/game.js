@@ -14,7 +14,6 @@ import { showStarterSpinner } from "./starterSpinner.js";
 import { zonkTitle, renderZonk } from "./sheets/zonk.js";
 import { yambTitle, renderYamb } from "./sheets/yamb.js";
 
-// One entry per game: how to title it and how to draw its sheet
 const SHEETS = {
     zonk: { title: zonkTitle, render: renderZonk },
     yamb: { title: yambTitle, render: renderYamb },
@@ -49,7 +48,7 @@ export function showGame(root, params = {}) {
     function update(next) {
         history = next;
         saveGame(history);
-        if (game.isFinished(history.current.sheet)) return go("end", { celebrate: true }, { fresh: true }); // this move ended it
+        if (game.isFinished(history.current.sheet)) return go("end", { celebrate: true }, { fresh: true });
         draw();
         const skipped = history.current.skipped ?? [];
         if (skipped.length) {
@@ -116,4 +115,4 @@ export function showGame(root, params = {}) {
         screen.classList.add("is-revealing"); // hides "<name>'s turn" so the header can't spoil the spin
         showStarterSpinner(root, { players, starter: currentPlayer, onClose: () => screen.classList.remove("is-revealing") });
     }
-}
+}

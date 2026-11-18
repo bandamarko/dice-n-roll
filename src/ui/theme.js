@@ -2,7 +2,7 @@
 // The theme is one attribute on <html>: data-theme="light" or "dark".
 // Default follows the phone's setting; once the player taps the switch, their choice is saved and wins.
 
-const THEME_KEY = "dice-n-fun:theme";
+const THEME_KEY = "dice-n-roll:theme";
 const systemDark = matchMedia("(prefers-color-scheme: dark)");
 
 function savedTheme() {
@@ -41,4 +41,4 @@ export function startTheme() {
   systemDark.addEventListener("change", (event) => {
     if (!savedTheme()) apply(event.matches ? "dark" : "light");
   });
-}
+}

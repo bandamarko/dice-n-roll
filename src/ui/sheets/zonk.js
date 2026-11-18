@@ -43,7 +43,6 @@ export function renderZonk(container, { state, game, play }) {
     list.append(row);
   });
 
-  // This turn + the throw being typed
   const turn = el("section", "zonk-turn");
   const turnLine = el("div", "zonk-turn-line");
   const subtotal = el("span", "zonk-turn-value", format(sheet.turn.subtotal));
@@ -56,7 +55,6 @@ export function renderZonk(container, { state, game, play }) {
   const hint = el("p", "zonk-hint");
   turn.append(turnLine, throwLine, hint);
 
-  // Numpad
   const pad = el("div", "numpad");
   const press = (digits) => {
     const next = (typed + digits).replace(/^0+/, "");
@@ -68,7 +66,6 @@ export function renderZonk(container, { state, game, play }) {
   }
   pad.append(button("numpad-key", { icon: BACKSPACE, label: "Backspace", onClick: () => { typed = typed.slice(0, -1); refresh(); } }));
 
-  // Actions
   const actions = el("div", "zonk-actions");
   const zonkButton = button("zonk-action zonk-action-zonk", { text: "Zonk", onClick: () => play({ type: "zonk" }) });
   const plusButton = button("zonk-action zonk-action-plus", { text: "+", label: "Plus: all dice scored, keep throwing", onClick: () => play({ type: "plus", points: Number(typed) }) });
@@ -126,4 +123,4 @@ export function renderZonk(container, { state, game, play }) {
     event.preventDefault(); // handled: no double press of a focused button, no page scroll
   }
   window.addEventListener("keydown", onKey);
-}
+}

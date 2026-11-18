@@ -43,7 +43,7 @@ export function showEnd(root, params = {}) {
     prepareSetup(game.id, state.players, state.sheet.options);
     go("setup", { gameId: game.id }, { fresh: true });
   };
-  setBackHandler(done); // back leaves the results, just like Done
+  setBackHandler(done);
 
   const screen = el("main", "end-screen");
   screen.append(
@@ -119,11 +119,11 @@ function rankingList(ranking, best) {
   return list;
 }
 
-// Yamb's "Compare sheets" joins Play again in the top row in the next step
+// Yamb's "Compare sheets" will join Play again in this row (later)
 function actions({ playAgain, done }) {
   const box = el("div", "end-actions");
   const row = el("div", "end-actions-row");
   row.append(button("button-primary", { text: "Play again", onClick: playAgain }));
   box.append(row, button("end-done", { text: "Done", onClick: done }));
   return box;
-}
+}

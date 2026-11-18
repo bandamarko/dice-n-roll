@@ -53,8 +53,8 @@ function othersFull(grid) {
 function followsColumnRule(grid, column, r) {
   const cells = grid[column];
   switch (column) {
-    case "down": return cells.indexOf(null) === r;      // first empty from the top
-    case "up": return cells.lastIndexOf(null) === r;     // first empty from the bottom
+    case "down": return cells.indexOf(null) === r;
+    case "up": return cells.lastIndexOf(null) === r;
     case "middle": return nextEmpty(cells, MIDDLE_UP) === r || nextEmpty(cells, MIDDLE_DOWN) === r;
     case "mandatory": return othersFull(grid) && cells.indexOf(null) === r;
     default: return true;                                // free, announce, hand, tip, maximum
@@ -176,4 +176,4 @@ export const flashYamb = createYambVariant({
     tip: "Tip: try it with 5 dice",
   },
   columns: ["down", "free", "up", "announce", "hand", "tip"],
-});
+});
