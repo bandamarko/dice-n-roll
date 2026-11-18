@@ -329,12 +329,14 @@ export function rulesPager(game, { onDone } = {}) {
     });
   });
 
-  // Keyboard: ← and → also turn pages (handy on desktop)
+  // Keyboard: ← and → also turn pages (handy on desktop). If a tab has the focus,
+  // the focus moves along with the page, so the ring is always on the selected tab
   pager.addEventListener("keydown", (event) => {
     if (event.key === "ArrowRight") goTo(current + 1);
     else if (event.key === "ArrowLeft") goTo(current - 1);
     else return;
     event.preventDefault();
+    if (tabButtons.includes(document.activeElement)) tabButtons[current].focus();
   });
 
   show(0);

@@ -1,5 +1,54 @@
 /* style.css: colors live here once, as variables. Screens only ever use var(--name). */
 
+/* ---------- Fonts ----------
+   Our own copies in public/fonts (no request to Google). Variable fonts: one file has
+   every weight. latin-ext (č ć š ž đ …) is only downloaded when a name needs it. */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 :root,
 :root[data-theme="light"] {
   --bg: #eaf4fb;
@@ -2568,6 +2617,72 @@ kbd {
   cursor: pointer;
 }
 
+/* ---------- New version bar (ui/update.js) ---------- */
+
+.update-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 20; /* above menus and dialogs */
+  width: max-content;
+  max-width: calc(100% - 24px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transform: translateX(-50%);
+  animation: update-in 0.3s ease both;
+}
+.update-text {
+  margin-right: 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.update-reload {
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.update-close {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.update-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes update-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .update-bar {
+    animation: none;
+  }
+}
+
 /* ---------- Theme fade ----------
    Instead of animating every element, we animate the color variables themselves.
    @property tells the browser each variable is a color (or a number), which makes it
@@ -3440,6 +3555,8 @@ kbd {
     .card-play,
     .name-add,
     .chip,
+    .update-reload,
+    .update-close,
     .name-remove,
     .icon-button,
     .game-menu-button,
@@ -3468,7 +3585,7 @@ kbd {
   /* Filled buttons: lighter + glow in their own colour */
   :is(
       .button-primary,
-      .card-play,
+      .update-reload .card-play,
       .name-add,
       .rules-next,
       .dialog-primary,
@@ -3485,7 +3602,7 @@ kbd {
   /* Everything else: a blue tint + glow */
   :is(
       .button-outline,
-      .icon-button,
+      .update-close .icon-button,
       .game-menu-button,
       .menu-item,
       .numpad-key,

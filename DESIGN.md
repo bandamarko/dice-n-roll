@@ -137,14 +137,25 @@ Features still to build are in TODO.md.
 - On install, saves index.html, every assets/ file it points to, the manifest,
   favicon and two icons. One missing file makes the install fail (and it retries
   on the next visit).
-- Opening the app answers from the saved copy, then downloads the newest version
-  in the background: a push shows up on the open after next.
+- Updates: the app opens from the saved copy and downloads a new version in the background.
+  It also checks when you come back to it (at most once a minute). When a newer version is saved,
+  a bar at the bottom says "New version ready" with Reload and ×. Nothing reloads by itself; × hides it until the next open.
+- Downloads run one at a time, so opening the app and a check can't clash.
 - Vite renames a file when its content changes, so saved assets never go stale.
   Files are saved before the page; files older than the previous version are deleted.
-- Google Fonts are saved too, after the first load.
+- Fonts are our own (public/fonts), saved with the app; no requests to Google.
 - Only registered in the built app (import.meta.env.PROD), never during npm run dev.
 - Manifest: "Dice'n'Roll", standalone, portrait, background and theme #EAF4FB,
   icons 192 / 512 / maskable 512 (the die inside the middle 80%).
+
+## Versions
+
+- Numbered MAJOR.MINOR.PATCH in package.json ("version").
+- 0.0: before publishing.
+- 1.0.0: the publish.
+- 2.0.0: online / peer-to-peer play.
+- After 1.0: a new feature bumps MINOR (1.1.0), a bug fix bumps PATCH (1.1.1).
+- The update check doesn't use this number; it compares the built file names.
 
 ## UI
 
@@ -295,6 +306,7 @@ Features still to build are in TODO.md.
   script in index.html sets it before the first paint.
 - Switching fades the color variables (@property, 0.3 s) and slides the switch;
   instant when the phone asks for reduced motion.
+  - Self-hosted variable fonts: Inter 100–900, Bricolage Grotesque 200–800.
 - New theme colors need: a light value, a dark value, an @property line and a transition line.
 - Light: bg #EAF4FB, text #0E2A3D, muted #4A6578, card #FFFFFF, accent #1F6FC2.
 - Dark: bg #0B1824, text #E6F1FA, muted #9DB6CA, card #14273A, accent #4A9EEB.

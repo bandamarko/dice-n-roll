@@ -7,6 +7,7 @@ import { showPicker } from "./ui/picker.js";
 import { showSetup } from "./ui/setup.js";
 import { showGame } from "./ui/game.js";
 import { showEnd } from "./ui/end.js";
+import { startUpdates } from "./ui/update.js";
 
 defineScreens({
   welcome: showWelcome,
@@ -23,6 +24,7 @@ startRouter(document.querySelector("#app"), "welcome");
 // would keep serving old copies of the files you're editing.
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
+  startUpdates();
 }
 
 document.addEventListener("gesturestart", (event) => event.preventDefault());
