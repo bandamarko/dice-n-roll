@@ -301,9 +301,11 @@ export function rulesPager(game, { onDone } = {}) {
 
   pager.append(tabs, strip, nav);
 
+  let target = null; // the page goTo is sliding to; the scroll listener waits for it
   function goTo(i) {
     const page = Math.max(0, Math.min(last, i));
     const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target = page;
     strip.scrollTo({ left: page * strip.clientWidth, behavior: smooth ? "smooth" : "auto" });
     show(page); // update right away; the scroll listener agrees once the slide ends
   }
@@ -311,7 +313,10 @@ export function rulesPager(game, { onDone } = {}) {
   // Tabs, count and buttons follow whichever page is showing
   function show(page) {
     current = page;
-    tabButtons.forEach((tab, i) => tab.setAttribute("aria-selected", String(i === page)));
+    tabButtons.forEach((tab, i) => {
+      tab.setAttribute("aria-selected", String(i === page));
+      tab.tabIndex = i === page ? 0 : -1; // Tab reaches only the selected tab; ← → move between them
+    });
     count.textContent = `${page + 1} / ${pages.length}`;
     prev.disabled = page === 0;
     next.replaceChildren(page === last && onDone ? "Done" : "Next");
@@ -320,14 +325,23 @@ export function rulesPager(game, { onDone } = {}) {
   }
 
   // A swipe moves the strip itself; read the page from how far it has scrolled
+    // A swipe moves the strip itself; read the page from how far it has scrolled
   let frame = 0;
   strip.addEventListener("scroll", () => {
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       const page = Math.round(strip.scrollLeft / strip.clientWidth);
+      if (target !== null) {
+        if (page !== target) return; // still sliding to the page goTo chose: don't jump back
+        target = null;
+      }
       if (page !== current) show(page);
     });
   });
+  // A swipe or the mouse wheel takes over from goTo's slide
+  for (const type of ["pointerdown", "touchstart", "wheel"]) {
+    strip.addEventListener(type, () => (target = null), { passive: true });
+  }
 
   // Keyboard: ← and → also turn pages (handy on desktop). If a tab has the focus,
   // the focus moves along with the page, so the ring is always on the selected tab

@@ -1127,6 +1127,10 @@ h3 {
   background: var(--sum); /* the card colour would vanish on the dark panel */
 }
 
+.rules-tab:focus-visible {
+  outline: none;
+}
+
 /* The strip: sideways scrolling that always stops on a whole page */
 .rules-strip {
   flex: 1;

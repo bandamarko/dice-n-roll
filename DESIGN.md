@@ -217,15 +217,21 @@ Features still to build are in TODO.md.
 
 ### Rules pages (ui/rules.js)
 
-- rulesPager(game, { onDone }) builds tabs, a swipeable strip of pages and
-  Back / "2 / 5" / Next; Next becomes Done on the last page. One element, so the
-  desktop setup screen can reuse it.
+- rulesPager(game, { onDone } = {}) builds tabs, a swipeable strip of pages and
+  Back / "2 / 5" / Next. With onDone (the game menu), Next becomes Done on the last
+  page; without it (the desktop setup screen), Next is disabled there. One element,
+  so both places reuse it.
 - In the game menu: a full-height panel (same size on every page) with a back arrow
   to the menu, "<Game> rules" and the facts line. Done closes the whole menu.
 - Swiping is native scrolling: CSS scroll-snap (x mandatory, snap-stop always), so it
   follows the finger and stops on a whole page. The code only reads which page is
   showing (scrollLeft ÷ width) and updates the tabs, count and buttons. Tabs and
-  Back / Next scroll there smoothly (instantly with reduced motion); ← → keys also work.
+  Back / Next scroll there smoothly (instantly with reduced motion). While they slide
+  the strip, the scroll listener waits for the slide to end, so the highlight never
+  jumps back to the old tab; a swipe or the mouse wheel takes over.
+- Keyboard: ← / → turn the pages; when a tab has the focus it moves with the page.
+  Only the selected tab is reachable with Tab, and tabs have no focus ring (the
+  highlight shows it).
 - Text uses **bold** markers turned into <b> elements (never innerHTML).
 - Zonk, 3 pages: Rules (5 steps, "First to the target score wins") · Scoring (single
   dice, three of a kind) · Big throws (four / five / six of a kind ×2 / ×4 / ×8,
@@ -238,7 +244,7 @@ Features still to build are in TODO.md.
 - Designed on the canvas: boards 13 (light + dark).
 - Keys page (last tab), only with a mouse and keyboard ((hover: hover) and
   (pointer: fine)): key caps (<kbd>) with what they do, grouped Everywhere /
-  On the sheet / In the score panel. Zonk shows Everywhere until its keys exist.
+  On the sheet / In the score panel. Zonk: 0–9, Backspace, +, Enter = Bank, Z = Zonk.
 
 ### Zonk sheet
 
