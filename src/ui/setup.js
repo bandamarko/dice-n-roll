@@ -153,7 +153,7 @@ export function showSetup(root, { gameId }) {
     input.focus();
   });
 
-    // The game's rules next to the setup: desktop only, phones hide it (CSS)
+  // The game's rules next to the setup: desktop only, phones hide it (CSS)
   const rules = el("section", "setup-rules");
   const facts = `${game.minPlayers}–${game.maxPlayers} players · ${game.dice} dice`;
   rules.append(
@@ -187,6 +187,9 @@ export function showSetup(root, { gameId }) {
   screen.append(footer);
 
   root.append(screen);
+  // With a mouse and keyboard, start typing names right away (on a phone this would
+  // pop the keyboard up over the screen, so there you tap the field yourself)
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches) input.focus();
   renderNames();
 }
 
@@ -258,4 +261,4 @@ function zonkOptions(options) {
   card.append(chips, custom);
   refresh();
   return card;
-}
+}

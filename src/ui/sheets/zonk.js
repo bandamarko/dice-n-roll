@@ -116,10 +116,13 @@ export function renderZonk(container, { state, game, play, signal }) {
     else if (k === "Backspace") { typed = typed.slice(0, -1); refresh(); }
     else if (k === "Delete") { typed = ""; refresh(); }
     else if (k === "+") { if (!plusButton.disabled) plusButton.click(); }
-    else if (k === "Enter") { if (!bankButton.disabled) bankButton.click(); }
+    else if (k === "Enter") {
+      if (event.target.closest("button")) return; // a focused button (menu, Undo, a key) gets its own Enter
+      if (!bankButton.disabled) bankButton.click();
+    }
     else if (k === "z" || k === "Z") zonkButton.click();
     else return;
     event.preventDefault(); // handled: no double press of a focused button, no page scroll
   }
   window.addEventListener("keydown", onKey, { signal }); // removed when the sheet is redrawn or left
-}
+}

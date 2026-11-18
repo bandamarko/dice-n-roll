@@ -178,6 +178,7 @@ Features still to build are in TODO.md.
 - Setup: names up to 16 characters, no duplicates; reorder by the grip handle
   (drag, or arrow keys). Names stay when switching games; the player-count check
   only runs when Start is pressed. Start saves the game, then opens it.
+  - With a mouse and keyboard, the name field has the focus when setup opens (not on touch screens).
   - Setup on desktop (canvas board 18): the rules pages on the left (rulesPager without
     onDone, so the last page has no Done), Players (+ Target score for Zonk) on the right,
     Start game pinned to the bottom; name rows 40 px so 8 players fit without scrolling.
@@ -241,6 +242,7 @@ Features still to build are in TODO.md.
 - In the game menu: a full-height panel (same size on every page) with a back arrow
   to the menu, "<Game> rules" and the facts line. Done closes the whole menu.
   On desktop it is 600 px wide, under the logo (canvas board 23A).
+  Back / Esc return to the menu list, like the back arrow; Done and tapping outside close the whole menu.
 - Swiping is native scrolling: CSS scroll-snap (x mandatory, snap-stop always), so it
   follows the finger and stops on a whole page. The code only reads which page is
   showing (scrollLeft ÷ width) and updates the tabs, count and buttons. Tabs and
@@ -263,12 +265,16 @@ Features still to build are in TODO.md.
 - Keys page (last tab), only with a mouse and keyboard ((hover: hover) and
   (pointer: fine)): key caps (<kbd>) with what they do, grouped Everywhere /
   On the sheet / In the score panel. Zonk: 0–9, Backspace, +, Enter = Bank, Z = Zonk.
+  -When the window is resized, the same page stays in view (ResizeObserver).
 
 ### Zonk sheet
 
 - Player rows with totals and progress bars toward the target (two columns for 5–8).
 - "This turn" (with "+ used"), the throw being typed, a numpad, Zonk / + / Bank N.
 - A hint explains why + or Bank is disabled (steps of 50, first throw 300+).
+- Keyboard: 0–9 type the throw, Backspace deletes, Delete clears, + = Plus,
+  Enter = Bank (only when allowed and no button has the focus; a focused button gets
+  its own Enter), Z = Zonk. Listed on the rules' Keys page.
 
 ### Yamb sheet
 
@@ -314,7 +320,7 @@ Features still to build are in TODO.md.
 
 ### Back button
 
-- Closes an open overlay first (score panel, game menu, popup, peek, spinner).
+- Closes an open overlay first (score panel, game menu, popup, peek, spinner); in the game menu's rules it goes back to the menu list first.
 - On a scoresheet with nothing open: "Leave the game? It stays saved." [Keep playing] [Leave].
 - On the end screen: same as Done.
 - Setup → picker → welcome; back on welcome closes the app.

@@ -340,6 +340,14 @@ export function rulesPager(game, { onDone } = {}) {
     strip.addEventListener(type, () => (target = null), { passive: true });
   }
 
+    // The window changed size: the pages changed width, so put the same page back in view
+  const resizes = new ResizeObserver(() => {
+    if (!strip.isConnected) return resizes.disconnect(); // the rules were closed
+    target = current;
+    strip.scrollTo({ left: current * strip.clientWidth, behavior: "instant" });
+  });
+  resizes.observe(strip);
+
   // Keyboard: ← and → also turn pages (handy on desktop). If a tab has the focus,
   // the focus moves along with the page, so the ring is always on the selected tab
   pager.addEventListener("keydown", (event) => {
@@ -352,4 +360,4 @@ export function rulesPager(game, { onDone } = {}) {
 
   show(0);
   return pager;
-}
+}

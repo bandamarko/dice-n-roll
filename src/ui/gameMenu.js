@@ -33,8 +33,18 @@ export function openGameMenu(root, game) {
 
   const dismiss = openOverlay(() => layer.remove());
   layer.addEventListener("click", (event) => {
-    if (event.target === layer) dismiss();
+    if (event.target === layer) closeMenu();
   });
+
+  // The rules count as one more overlay on top of the menu, so back (or Esc)
+  // from the rules returns to the list, like the back arrow does
+  let closeRules = null;
+  let closingAll = false;
+  function closeMenu() {
+    closingAll = true; // straight out, without showing the list on the way
+    closeRules?.();
+    dismiss();
+  }
 
   function showMain() {
     panel.className = "menu-panel";
@@ -83,17 +93,21 @@ export function openGameMenu(root, game) {
   function showRules() {
     panel.className = "menu-panel menu-panel-rules";
     const head = el("div", "menu-rules-head");
-    const backButton = button("icon-button", { icon: BACK, label: "Back to menu", onClick: showMain });
+    closeRules = openOverlay(() => {
+      closeRules = null;
+      if (!closingAll) showMain();
+    });
+    const backButton = button("icon-button", { icon: BACK, label: "Back to menu", onClick: () => closeRules?.() });
     const title = el("h2", "menu-rules-title", `${game.name} rules`);
     head.append(backButton, title);
 
     const players = `${game.minPlayers}–${game.maxPlayers} players · ${game.dice} dice`;
     const facts = el("p", "menu-rules-facts", game.rules.extra ? `${players} · ${game.rules.extra}` : players);
     // Done on the last page closes the whole menu, back to the scoresheet
-    panel.replaceChildren(head, facts, rulesPager(game, { onDone: dismiss }));
+    panel.replaceChildren(head, facts, rulesPager(game, { onDone: closeMenu }));
     backButton.focus();
   }
 
   root.append(layer); // on the page first, so showMain() can focus Rules
   showMain();
-}
+}
