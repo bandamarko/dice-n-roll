@@ -333,6 +333,9 @@ Features still to build are in TODO.md.
 ## Theme
 
 - Light and dark; default follows the phone, the toggle's last tap wins.
+  - <meta name="color-scheme" content="light dark">: the browser knows we have both, so
+    Android's "darken websites" / in-app browsers don't repaint the page and report the
+    phone's real setting. The light theme uses "color-scheme: only light" for the same reason.
 - CSS variables in style.css, switched by data-theme on <html>; an inline
   script in index.html sets it before the first paint.
 - Switching fades the color variables (@property, 0.3 s) and slides the switch;
