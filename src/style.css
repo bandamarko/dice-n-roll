@@ -1127,7 +1127,9 @@ h3 {
   background: var(--sum); /* the card colour would vanish on the dark panel */
 }
 
-.rules-tab:focus-visible {
+.rules-tab:focus-visible,
+.rules-strip:focus-visible,
+.rules-page:focus-visible{
   outline: none;
 }
 

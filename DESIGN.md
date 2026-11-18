@@ -231,7 +231,7 @@ Features still to build are in TODO.md.
   jumps back to the old tab; a swipe or the mouse wheel takes over.
 - Keyboard: ← / → turn the pages; when a tab has the focus it moves with the page.
   Only the selected tab is reachable with Tab, and tabs have no focus ring (the
-  highlight shows it).
+  highlight shows it). The strip and the pages are not Tab stops (tabIndex -1, no focus ring).
 - Text uses **bold** markers turned into <b> elements (never innerHTML).
 - Zonk, 3 pages: Rules (5 steps, "First to the target score wins") · Scoring (single
   dice, three of a kind) · Big throws (four / five / six of a kind ×2 / ×4 / ×8,

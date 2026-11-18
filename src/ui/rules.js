@@ -284,10 +284,12 @@ export function rulesPager(game, { onDone } = {}) {
 
   // The strip of pages; scroll-snap (CSS) makes every swipe stop on a whole page
   const strip = el("div", "rules-strip");
+    strip.tabIndex = -1; // not a Tab stop: the tabs are (Chrome would add scrollable boxes)
   pages.forEach((page) => {
     const section = el("section", "rules-page");
     section.setAttribute("role", "tabpanel");
     section.setAttribute("aria-label", page.title);
+        section.tabIndex = -1; // same: Tab goes from the tabs straight to Back / Next  
     section.append(el("h3", "rules-page-title", page.title), ...page.build());
     strip.append(section);
   });
