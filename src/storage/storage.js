@@ -1,5 +1,9 @@
 const STORAGE_KEY = "dice-n-roll:current-game";
 const SAVE_VERSION = 1;
+// Only the last moves' undo is saved. Every saved step is a whole copy of the game, so a
+// full 8-player Yamb would grow to ~3.7 MB: slow to save after every move and close to
+// the ~5 MB some browsers allow. In the open app, undo still goes all the way back.
+const SAVED_UNDOS = 50;
 
 // The app used to be called Dice'n'Fun. Values saved under the old names are moved
 // to the new ones once, unchanged, so nobody loses their game or theme.
@@ -25,7 +29,7 @@ export function saveGame(history) {
   const data = {
     version: SAVE_VERSION,
     current: history.current,
-    undoStack: history.undoStack,   // redo is deliberately not saved
+    undoStack: history.undoStack.slice(-SAVED_UNDOS), // redo is deliberately not saved
   };
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

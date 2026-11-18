@@ -17,6 +17,7 @@ let backHandler = null;  // a screen can take over back (the scoresheet asks "Le
 let catchers = 0;        // spare history entries currently above the app's own entry
 let tapping = false;     // true while a tap or key press is being handled
 let handlingBack = false;
+let screenScope = new AbortController(); // aborted when the screen changes (see screenSignal)
 
 export function defineScreens(map) {
   Object.assign(screens, map);
@@ -44,6 +45,12 @@ export function go(name, params = {}, { fresh = false } = {}) {
 export function home() {
   stack.length = 1;
   render();
+}
+
+// For listeners outside the screen's own elements (window, document): pass it as
+// { signal } and the listener is removed by itself as soon as the screen changes.
+export function screenSignal() {
+  return screenScope.signal;
 }
 
 // For on-screen back arrows: behaves exactly like the phone's back button
@@ -106,6 +113,8 @@ function sync() {
 }
 
 function render() {
+  screenScope.abort(); // the old screen's window listeners go with it
+  screenScope = new AbortController();
   overlays.length = 0; // overlays live inside root and disappear with the old screen
   backHandler = null;
   const { name, params } = stack.at(-1);
@@ -129,4 +138,4 @@ function onBack() {
   else { stack.pop(); render(); }                // 3. previous screen
   handlingBack = false;
   sync(); // new catchers wait for the next tap
-}
+}

@@ -133,6 +133,7 @@ Features still to build are in TODO.md.
 - Theme stored under "dice-n-roll:theme" (index.html also reads the old
   "dice-n-fun:theme" on that first start, so dark mode doesn't flash).
 - The service worker's copy of the app is separate: updating the app never touches saves.
+- Only the last 50 undo steps are saved (SAVED_UNDOS); in the open app undo goes all the way back.
 
 ## Offline and updates (public/sw.js)
 
@@ -216,6 +217,14 @@ Features still to build are in TODO.md.
   theme), floats down for ~5 s and fades. Canvas, taps go through. Skipped when
   the phone asks for reduced motion.
 - Designed on the canvas (option B, trophy card), with light, dark and tie boards.
+
+#### Desktop (style.css, Desktop section; canvas board 19)
+
+- Two columns, kept together in the middle: the trophy card (580 × 580, shorter on
+  short screens) on the left; the ranking, Play again and Done on the right (480 px).
+- Bigger type: title 44 px, score 72 px, ranks 36 px, names and totals 18 px.
+- With many players on a short screen the ranking scrolls; the buttons stay visible.
+- "Compare sheets" (Yamb) joins Play again when that feature is built.
 
 ### Rules pages (ui/rules.js)
 
@@ -306,6 +315,7 @@ Features still to build are in TODO.md.
   (browsers skip ones added without user interaction); it never removes them.
   Many backs in a row without touching the screen eventually leave the app;
   the game is saved, so Continue resumes it.
+- screenSignal(): an AbortSignal cancelled when the screen changes; window listeners use it (and the sheet's own per redraw), so none are left behind.
 
 ## Theme
 

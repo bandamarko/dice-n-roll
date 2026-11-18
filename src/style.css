@@ -740,7 +740,6 @@ h3 {
   gap: 10px;
 }
 
-
 /* ---------- Zonk sheet ---------- */
 
 .zonk-players {
@@ -1061,8 +1060,6 @@ h3 {
   color: var(--muted);
 }
 
-
-
 /* ---------- Rules pages (ui/rules.js) ---------- */
 
 .rules-pager {
@@ -1103,7 +1100,7 @@ h3 {
 
 .rules-tab:focus-visible,
 .rules-strip:focus-visible,
-.rules-page:focus-visible{
+.rules-page:focus-visible {
   outline: none;
 }
 
@@ -3090,6 +3087,113 @@ kbd {
     .game-card-back:hover {
       box-shadow: 0 0 0 2px var(--accent-text);
     }
+  }
+
+  /* ----- End screen: the trophy card | the ranking and the buttons ----- */
+
+  #app:has(> .end-screen) {
+    max-width: 1440px;
+  }
+  .end-screen {
+    height: 100dvh;
+    padding: 24px 32px 28px;
+    display: grid;
+    grid-template-columns: minmax(0, 640px) 480px;
+    grid-template-rows: auto minmax(0, 580px) auto; /* game · card and ranking · buttons */
+    justify-content: center; /* on big screens it all stays together in the middle */
+    align-content: center;
+    column-gap: 24px;
+    row-gap: 16px;
+  }
+  .end-game {
+    grid-column: 1 / -1;
+    font-size: 15px;
+  }
+  .end-card {
+    grid-column: 1;
+    grid-row: 2 / -1;
+    align-self: center;
+    justify-self: center;
+    width: 100%;
+    max-width: 580px;
+    height: min(580px, 100%);
+    justify-content: center;
+    gap: 12px;
+    border-radius: 28px;
+  }
+  .end-card::before {
+    right: -45px;
+    top: -45px;
+    width: 215px;
+    height: 215px;
+  }
+  .end-card::after {
+    left: -55px;
+    bottom: -70px;
+    width: 250px;
+    height: 250px;
+  }
+  .end-trophy {
+    width: 118px;
+    height: 118px;
+  }
+  .end-trophy svg {
+    width: 66px;
+    height: 66px;
+  }
+  .end-title {
+    font-size: 44px;
+  }
+  .end-score {
+    font-size: 72px;
+  }
+  .end-line {
+    font-size: 17px;
+  }
+
+  .end-ranking {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    max-height: 100%;
+    overflow-y: auto; /* 8 players on a short screen: the list scrolls, the buttons stay */
+    scrollbar-width: thin;
+    scrollbar-color: var(--highlight) transparent;
+    padding: 8px 22px;
+    border-radius: 24px;
+  }
+  .end-row {
+    gap: 14px;
+    padding: 14px 0;
+  }
+  .end-rank {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+  .end-info {
+    gap: 8px;
+  }
+  .end-name,
+  .end-total {
+    font-size: 18px;
+  }
+  .end-behind {
+    font-size: 13px;
+  }
+  .end-bar {
+    height: 8px;
+  }
+
+  .end-actions {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+  }
+  .end-actions .button-primary {
+    height: 56px;
+    padding: 0 20px;
+    font-size: 17px;
   }
 
   /* ----- Zonk sheet: players in turn order | the turn panel ----- */

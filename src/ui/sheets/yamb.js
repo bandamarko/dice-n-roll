@@ -47,7 +47,7 @@ export function yambTitle(state, game) {
     return game.name;
 }
 
-export function renderYamb(container, { state, game, play, setPendingUndo }) {
+export function renderYamb(container, { state, game, play, setPendingUndo, signal }) {
     const { players, currentPlayer, sheet } = state;
     const screen = container.closest(".game-screen"); // floating panels are placed inside it
     const totals = game.computeTotals(sheet);
@@ -442,7 +442,6 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
     // Arrows jump between open cells, Enter opens one; in the score panel the keys pick
     // the value (panelKey); with an entry pending, Enter plays it (Confirm turn).
     function onKey(event) {
-        if (!container.isConnected) return window.removeEventListener("keydown", onKey); // this sheet was redrawn or left
         if (event.ctrlKey || event.metaKey || event.altKey || event.defaultPrevented) return;
         if (document.querySelector(".menu-layer, .dialog-layer, .yamb-layer.is-dimmed")) return; // a menu, popup or the tip notice has the keys
         const arrow = ARROWS[event.key];
@@ -461,7 +460,7 @@ export function renderYamb(container, { state, game, play, setPendingUndo }) {
             play(pending); // Enter, Enter: the first one entered the value, this one confirms the turn
         }
     }
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, { signal }); // removed when the sheet is redrawn or left
 
     // Focus the nearest open cell in the arrow's direction, preferring the same row / column
     function moveFocus(from, [dx, dy]) {

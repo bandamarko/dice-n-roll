@@ -12,7 +12,7 @@ export function zonkTitle(state) {
   return `Zonk · to ${format(state.sheet.options.target)}`;
 }
 
-export function renderZonk(container, { state, game, play }) {
+export function renderZonk(container, { state, game, play, signal }) {
   const { sheet, players, currentPlayer } = state;
   const totals = game.computeTotals(sheet);
   const target = sheet.options.target;
@@ -109,7 +109,6 @@ export function renderZonk(container, { state, game, play }) {
   // Keyboard: digits type the throw, Backspace deletes, Delete clears, + = Plus,
   // Enter = Bank (only when allowed), Z = Zonk. It presses the real buttons.
   function onKey(event) {
-    if (!container.isConnected) return window.removeEventListener("keydown", onKey); // this sheet was redrawn or left
     if (event.ctrlKey || event.metaKey || event.altKey || event.defaultPrevented) return;
     if (document.querySelector(".menu-layer, .dialog-layer, .spinner-layer")) return; // a menu, popup or the spinner has the keys
     const k = event.key;
@@ -122,5 +121,5 @@ export function renderZonk(container, { state, game, play }) {
     else return;
     event.preventDefault(); // handled: no double press of a focused button, no page scroll
   }
-  window.addEventListener("keydown", onKey);
+  window.addEventListener("keydown", onKey, { signal }); // removed when the sheet is redrawn or left
 }

@@ -5,7 +5,7 @@
 import { getGame } from "../games/index.js";
 import { play, undo, redo, canUndo, canRedo } from "../state/history.js";
 import { loadGame, saveGame } from "../storage/storage.js";
-import { go, home, setBackHandler } from "./router.js";
+import { go, home, setBackHandler, screenSignal } from "./router.js";
 import { showDialog } from "./dialog.js";
 import { el, button } from "./dom.js";
 import { appIcon, UNDO, REDO } from "./icons.js";
@@ -32,6 +32,7 @@ export function showGame(root, params = {}) {
     // A sheet can have an entry that isn't a move yet (Yamb's pending entry).
     // While it does, Undo clears that entry instead of undoing the last move.
     let pendingUndo = null;
+    let sheetScope = null; // aborted on every redraw, so the old sheet's key listener goes with it
     let undoButton = null;
     let redoButton = null;
 
@@ -78,7 +79,9 @@ export function showGame(root, params = {}) {
 
         const body = el("div", "game-body");
         screen.replaceChildren(header, body); // on the page first, so the sheet can measure positions
-        sheet.render(body, { state, game, play: (entry) => update(play(history, entry)), setPendingUndo });
+        sheetScope?.abort();
+        sheetScope = new AbortController();
+        sheet.render(body, { state, game, play: (entry) => update(play(history, entry)), setPendingUndo, signal: sheetScope.signal });
     }
 
     if (game.isFinished(history.current.sheet)) return go("end", {}, { fresh: true });
@@ -98,7 +101,6 @@ export function showGame(root, params = {}) {
     // Keyboard: Ctrl+Z undo, Ctrl+Y or Ctrl+Shift+Z redo (Cmd on a Mac).
     // It presses the real buttons, so the same rules apply: disabled means nothing happens.
     function onKey(event) {
-        if (!screen.isConnected) return window.removeEventListener("keydown", onKey); // the game screen was left
         if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
         if (root.querySelector(".menu-layer, .dialog-layer, .yamb-layer")) return; // not behind a menu, popup or score panel
         const key = event.key.toLowerCase();
@@ -107,7 +109,8 @@ export function showGame(root, params = {}) {
         event.preventDefault(); // stops the browser's own undo
         if (!target.disabled) target.click();
     }
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, { signal: screenSignal() });
+    screenSignal().addEventListener("abort", () => sheetScope?.abort()); // leaving the game ends the sheet's too
 
     // A brand-new game (from setup) first reveals who starts. Continue skips this.
     const { players, currentPlayer } = history.current;
