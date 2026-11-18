@@ -111,6 +111,16 @@ body {
   color: var(--ink);
   font-family: Inter, system-ui, sans-serif;
   overscroll-behavior: none; /* some browsers scroll the body instead of html */
+  -webkit-user-select: none; /* Safari still needs the prefix */
+  user-select: none; /* no accidental text selection on long-press, double-tap or drag */
+  -webkit-touch-callout: none; /* iPhone: no copy / look-up menu on long-press */
+  -webkit-tap-highlight-color: transparent; /* Android and iPhone: no grey flash on tap */
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 h1,
@@ -2934,7 +2944,7 @@ kbd {
   }
   #app:has(.yamb-grid, .zonk-players) .menu-panel-rules {
     right: auto;
-    width: 420px;
+    width: 600px;
   }
 
   /* ----- Welcome: the same screen, centred and about 1.5× bigger ----- */

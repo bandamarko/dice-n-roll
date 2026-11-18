@@ -234,6 +234,7 @@ Features still to build are in TODO.md.
   so both places reuse it.
 - In the game menu: a full-height panel (same size on every page) with a back arrow
   to the menu, "<Game> rules" and the facts line. Done closes the whole menu.
+  On desktop it is 600 px wide, under the logo (canvas board 23A).
 - Swiping is native scrolling: CSS scroll-snap (x mandatory, snap-stop always), so it
   follows the finger and stops on a whole page. The code only reads which page is
   showing (scrollLeft ÷ width) and updates the tabs, count and buttons. Tabs and
